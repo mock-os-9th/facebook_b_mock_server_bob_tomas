@@ -107,9 +107,9 @@ function sexCheck($sex)
     {
         return array(false,231, "공백 제거 필요");
     }
-    if(!is_integer($sex) || $sex<0)
+    if(!is_integer($sex) || $sex<0 || $sex>2)
     {
-        return array(false,232,"성별은 0 또는 양수의 정수형으로 입력해주세요");
+        return array(false,232,"성별은 0,1,2로 입력해주세요");
     }
     return array(true);
 }
