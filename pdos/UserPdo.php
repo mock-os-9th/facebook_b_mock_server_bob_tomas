@@ -70,7 +70,7 @@ function passwordCheck($password)
 
     if( $num == 0 || $eng == 0 || $spe == 0)
     {
-        return array(false, 207,"영문, 숫자, 특수문자를 혼합 필요");
+        return array(false, 295,"영문, 숫자, 특수문자를 혼합 필요");
     }
 
     return array(true);
@@ -105,7 +105,7 @@ function sexCheck($sex)
     }
     if(preg_match("/\s/u", $sex) == true)
     {
-        return array(false,231, "공백 제거 필요");
+        return array(false,206, "공백 제거 필요");
     }
     if(!is_integer($sex) || $sex<0 || $sex>2)
     {
