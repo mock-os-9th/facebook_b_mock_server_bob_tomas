@@ -4,7 +4,7 @@
 function test()
 {
     $pdo = pdoSqlConnect();
-    $query = "SELECT * FROM Test;";
+    $query = "SELECT * FROM test;";
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
