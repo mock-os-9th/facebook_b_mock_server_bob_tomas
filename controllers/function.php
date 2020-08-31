@@ -22,7 +22,14 @@ function isValidHeader($jwt, $key)
     try {
         $data = getDataByJWToken($jwt, $key);
         //로그인 함수 직접 구현 요함
-        return isValidUser($data->id, $data->pw);
+        if($data->status=="email")
+        {
+            return isValidUserWithEmail($data->email, $data->password);
+        }
+        if($data->status=="email")
+        {
+            return isValidUserWithPhone($data->phone,$data->password);
+        }
     } catch (\Exception $e) {
         return false;
     }
@@ -74,13 +81,37 @@ function getTodayByTimeStamp()
     return date("Y-m-d H:i:s");
 }
 
-function getJWToken($id, $pw, $secretKey)
+function getJWTokenUserWithEmail($email, $pw, $userId, $secretKey)
 {
     $data = array(
         'date' => (string)getTodayByTimeStamp(),
-        'id' => (string)$id,
-        'pw' => (string)$pw
+        'email' => (string)$email,
+        'password' => (string)$pw,
+        'userId' => (int)$userId,
+        'status' => "email"
     );
+
+
+//    echo json_encode($data);
+
+    return $jwt = JWT::encode($data, $secretKey);
+
+//    echo "encoded jwt: " . $jwt . "n";
+//    $decoded = JWT::decode($jwt, $secretKey, array('HS256'))
+//    print_r($decoded);
+}
+
+function getJWTokenUserWithPhone($phone, $pw, $userId, $secretKey)
+{
+    $data = array(
+        'date' => (string)getTodayByTimeStamp(),
+        'phone' => (string)$phone,
+        'password' => (string)$pw,
+        'userId' => (int)$userId,
+        'status' => "phone"
+
+    );
+
 
 //    echo json_encode($data);
 
