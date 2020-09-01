@@ -22,14 +22,7 @@ function isValidHeader($jwt, $key)
     try {
         $data = getDataByJWToken($jwt, $key);
         //로그인 함수 직접 구현 요함
-        if($data->status=="email")
-        {
-            return isValidUser($data->email, $data->password);
-        }
-        if($data->status=="phone")
-        {
-            return isValidUser($data->phone,$data->password);
-        }
+        return isValidUser($data->sign, $data->password);
     } catch (\Exception $e) {
         return false;
     }
@@ -124,6 +117,25 @@ function getJWTokenUserWithPhone($phone, $pw, $userId, $secretKey)
 //    print_r($decoded);
 }
 
+function getJWTokenUser($sign, $pw, $userId, $secretKey)
+{
+    $data = array(
+        'date' => (string)getTodayByTimeStamp(),
+        'sign' => (string)$sign,
+        'password' => (string)$pw,
+        'userId' => (int)$userId,
+        'login' => 1
+    );
+
+
+//    echo json_encode($data);
+
+    return $jwt = JWT::encode($data, $secretKey);
+
+//    echo "encoded jwt: " . $jwt . "n";
+//    $decoded = JWT::decode($jwt, $secretKey, array('HS256'))
+//    print_r($decoded);
+}
 
 function getDataByJWToken($jwt, $secretKey)
 {

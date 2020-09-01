@@ -280,9 +280,12 @@ function isJwtSaved($jwt,$macAddress)
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$jwt,(string)$macAddress]);
-
+    $st->execute([$jwt,$macAddress]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
     $st=null;$pdo = null;
+
+    return intval($res[0]["exist"]);
 }
 
 function saveLogin($sign,$password)
@@ -293,6 +296,54 @@ function saveLogin($sign,$password)
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
     $st->execute([$sign,$password]);
+
+    $st=null;$pdo = null;
+}
+
+function deleteJwt($jwt,$macAddress)
+{
+    $pdo = pdoSqlConnect();
+    $query = "delete from JWT where jwt=? and macAddress=?";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$jwt,$macAddress]);
+
+    $st=null;$pdo = null;
+}
+
+function changePassword($newPassword,$userId)
+{
+    $pdo = pdoSqlConnect();
+    $query = "update users set password=? where id=?;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$newPassword,$userId]);
+
+    $st=null;$pdo = null;
+}
+
+function changeLoginTable($newPassword,$userId)
+{
+    $pdo = pdoSqlConnect();
+    $query = "update loginTable set password=? where userId=?;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$newPassword,$userId]);
+
+    $st=null;$pdo = null;
+}
+
+function changeJWT($newJwt,$wasJwt,$macAddress)
+{
+    $pdo = pdoSqlConnect();
+    $query = "update JWT set jwt=? where macAddress=? and jwt=?;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$newJwt,$macAddress,$wasJwt]);
 
     $st=null;$pdo = null;
 }

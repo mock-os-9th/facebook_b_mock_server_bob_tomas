@@ -118,13 +118,13 @@ try {
                 if(!is_null($email)) {
                     createUserWithEmail($lastName,$firstName,$birth,$sex,$email,$password);
                     $userId=getUserIdfromEmail($email);
-                    $jwt = getJWTokenUserWithEmail($email, $password, $userId, JWT_SECRET_KEY);
+                    $jwt = getJWTokenUser($email, $password, $userId, JWT_SECRET_KEY);
                     saveLogin($email,$password);
                 }elseif(!is_null($phone))
                 {
                     createUserWithPhone($lastName,$firstName,$birth,$phone,$sex,$password);
                     $userId=getUserIdfromPhone($phone);
-                    $jwt = getJWTokenUserWithPhone( $phone, $password, $userId, JWT_SECRET_KEY);
+                    $jwt = getJWTokenUser( $phone, $password, $userId, JWT_SECRET_KEY);
                     saveLogin($phone,$password);
                 }
                 $res->jwt = $jwt;
@@ -185,7 +185,7 @@ try {
                         break;
                     }
                     $userId=getUserIdfromEmail($email);
-                    $jwt = getJWTokenUserWithEmail($email, $password, $userId, JWT_SECRET_KEY);
+                    $jwt = getJWTokenUser($email, $password, $userId, JWT_SECRET_KEY);
                 }elseif(!is_null($phone))
                 {
                     if (!isValidUser($phone,$password))
@@ -197,7 +197,7 @@ try {
                         break;
                     }
                     $userId=getUserIdfromPhone($phone);
-                    $jwt = getJWTokenUserWithPhone( $phone, $password, $userId, JWT_SECRET_KEY);
+                    $jwt = getJWTokenUser( $phone, $password, $userId, JWT_SECRET_KEY);
                 }
                 $res->jwt= $jwt;
                 saveJWT($jwt,1);  //macAddress
@@ -241,6 +241,11 @@ try {
 
         case "changePassword":
             $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            $wasPassword=$req->wasPassword;
+            $newPassword=$req->newPassword;
+            $rePassword=$req->rePassword;
+            $newPasswordChecked=passwordCheck($newPassword);
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
             if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
                 $res->isSuccess = FALSE;
                 $res->code = 201;
@@ -248,22 +253,41 @@ try {
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 addErrorLogs($errorLogs, $res, $req);
                 break;
-            }
-
-            http_response_code(200);
-            if(!isJwtSaved($jwt,"1")) //macAddress
+            }elseif ($newPasswordChecked[0]==false)
             {
                 $res->isSuccess = FALSE;
-                $res->code = 200;
-                $res->message = "토큰이 이미 만료되었습니다.";
+                $res->code = $newPasswordChecked[1];
+                $res->message = $newPasswordChecked[2];
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }elseif($wasPassword!=$data->password)
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 202;
+                $res->message = "이전 비밀번호가 일치하지 않습니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }elseif($newPassword!=$rePassword)
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 203;
+                $res->message = "비밀번호가 일치하지 않습니다";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 addErrorLogs($errorLogs, $res, $req);
                 break;
             }else{
-                deleteJwt($jwt,"1"); //macAddress
+                http_response_code(200);
+
+                changePassword($newPassword,$data->userId);
+                $newJwt=getJWTokenUser($data->sign,$newPassword,$data->userId,JWT_SECRET_KEY);
+                changeLoginTable($newPassword,$data->userId);
+                changeJWT($newJwt,$jwt,"1"); //macAddress
+                $res->newJwt = $newJwt;
                 $res->isSuccess = TRUE;
                 $res->code = 100;
-                $res->message = "로그인 삭제 성공";
+                $res->message = "비밀번호 변경 성공";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }

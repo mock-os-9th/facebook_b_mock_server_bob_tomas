@@ -20,7 +20,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/user', ['UserController', 'createUser']);
     $r->addRoute('POST', '/login', ['UserController', 'login']);
     $r->addRoute('DELETE', '/logout', ['UserController', 'logout']);
-    $r->addRoute('PUT', '/changePassword', ['UserController', 'changePassword']);
+    $r->addRoute('PUT', '/change-password', ['UserController', 'changePassword']);
 
 
     $r->addRoute('GET', '/jwt', ['MainController', 'validateJwt']);
