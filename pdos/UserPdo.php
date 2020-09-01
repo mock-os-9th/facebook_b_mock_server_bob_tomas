@@ -203,30 +203,14 @@ function createUserWithPhone($lastName,$firstName,$birth,$phone,$sex,$password)
     $pdo = null;
 }
 
-function isValidUserWithEmail($email,$password)
+function isValidUser($sign,$password)
 {
     $pdo = pdoSqlConnect();
-    $query = "SELECT EXISTS(SELECT * FROM users WHERE email = ? and password = ? ) AS exist;";
+    $query = "SELECT EXISTS(SELECT * FROM loginTable WHERE sign = ? and password = ?) AS exist;";
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$email,$password]);
-    $st->setFetchMode(PDO::FETCH_ASSOC);
-    $res = $st->fetchAll();
-
-    $st=null;$pdo = null;
-
-    return intval($res[0]["exist"]);
-}
-
-function isValidUserWithPhone($phone,$password)
-{
-    $pdo = pdoSqlConnect();
-    $query = "SELECT EXISTS(SELECT * FROM users WHERE phone = ? and password = ?) AS exist;";
-
-    $st = $pdo->prepare($query);
-    //    $st->execute([$param,$param]);
-    $st->execute([$phone,$password]);
+    $st->execute([$sign,$password]);
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
 
@@ -238,7 +222,7 @@ function isValidUserWithPhone($phone,$password)
 function getUserIdfromEmail($email)
 {
     $pdo = pdoSqlConnect();
-    $query = "SELECT * FROM users WHERE email = ?;";
+    $query = "SELECT id FROM users WHERE email = ?;";
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
@@ -248,13 +232,13 @@ function getUserIdfromEmail($email)
 
     $st=null;$pdo = null;
 
-    return $res[0]["email"];
+    return $res[0]["id"];
 }
 
 function getUserIdfromPhone($phone)
 {
     $pdo = pdoSqlConnect();
-    $query = "SELECT * FROM users WHERE phone = ?;";
+    $query = "SELECT id FROM users WHERE phone = ?;";
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
@@ -264,7 +248,7 @@ function getUserIdfromPhone($phone)
 
     $st=null;$pdo = null;
 
-    return $res[0]["phone"];
+    return $res[0]["id"];
 }
 
 function isPhoneOrEmail($sign)
@@ -275,4 +259,40 @@ function isPhoneOrEmail($sign)
     }else{
         return "email";
     }
+}
+
+function saveJWT($jwt,$macAddress)
+{
+    $pdo = pdoSqlConnect();
+    $query = "insert into JWT ( jwt , macAddress ) value (?,?);";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$jwt,$macAddress]);
+
+    $st=null;$pdo = null;
+}
+
+function isJwtSaved($jwt,$macAddress)
+{
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from JWT where jwt=? and macAddress =?);";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$jwt,$macAddress]);
+
+    $st=null;$pdo = null;
+}
+
+function saveLogin($sign,$password)
+{
+    $pdo = pdoSqlConnect();
+    $query = "insert into loginTable ( sign , password ) value (?,?);";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$sign,$password]);
+
+    $st=null;$pdo = null;
 }

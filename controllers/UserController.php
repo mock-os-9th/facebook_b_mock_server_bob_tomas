@@ -119,19 +119,155 @@ try {
                     createUserWithEmail($lastName,$firstName,$birth,$sex,$email,$password);
                     $userId=getUserIdfromEmail($email);
                     $jwt = getJWTokenUserWithEmail($email, $password, $userId, JWT_SECRET_KEY);
+                    saveLogin($email,$password);
                 }elseif(!is_null($phone))
                 {
                     createUserWithPhone($lastName,$firstName,$birth,$phone,$sex,$password);
                     $userId=getUserIdfromPhone($phone);
                     $jwt = getJWTokenUserWithPhone( $phone, $password, $userId, JWT_SECRET_KEY);
+                    saveLogin($phone,$password);
                 }
                 $res->jwt = $jwt;
+                saveJWT($jwt,1);  //macAddress
                 $res->isSuccess = TRUE;
                 $res->code = 102;
                 $res->message = "회원가입 성공";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
+
+        case "login":
+            http_response_code(200);
+            $password=$req->password;
+            $passwordChecked=passwordCheck($password);
+            if(isPhoneOrEmail($req->sign)=="email") {
+                $email = $req->sign;
+                $phone = null;
+                $emailChecked = emailCheck($email);
+                if ($emailChecked[0] == false) {
+                    $res->isSuccess = false;
+                    $res->code = $emailChecked[1];
+                    $res->message = $emailChecked[2];
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    break;
+                } elseif (!duplicatedEmail($email)) {
+                    $res->isSuccess = false;
+                    $res->code = 217;
+                    $res->message = "유효하지 않은 이메일";
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    break;
+                }
+            }elseif(isPhoneOrEmail($req->sign)=="phone") {
+                $phone = $req->sign;
+                $email = null;
+                $phoneChecked = phoneCheck($phone);
+                if ($phoneChecked[0] == false) {
+                    $res->isSuccess = false;
+                    $res->code = $phoneChecked[1];
+                    $res->message = $phoneChecked[2];
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    break;
+                } elseif (!duplicatedPhone($phone)) {
+                    $res->isSuccess = false;
+                    $res->code = 218;
+                    $res->message = "유효하지 않은 전화번호";
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    break;
+                }
+            }
+                if(!is_null($email)) {
+                    if (!isValidUser($email,$phone))
+                    {
+                        $res->isSuccess = false;
+                        $res->code = 220;
+                        $res->message = "비밀번호가 틀렸습니다";
+                        echo json_encode($res, JSON_NUMERIC_CHECK);
+                        break;
+                    }
+                    $userId=getUserIdfromEmail($email);
+                    $jwt = getJWTokenUserWithEmail($email, $password, $userId, JWT_SECRET_KEY);
+                }elseif(!is_null($phone))
+                {
+                    if (!isValidUser($phone,$password))
+                    {
+                        $res->isSuccess = false;
+                        $res->code = 220;
+                        $res->message = "비밀번호가 틀렸습니다";
+                        echo json_encode($res, JSON_NUMERIC_CHECK);
+                        break;
+                    }
+                    $userId=getUserIdfromPhone($phone);
+                    $jwt = getJWTokenUserWithPhone( $phone, $password, $userId, JWT_SECRET_KEY);
+                }
+                $res->jwt= $jwt;
+                saveJWT($jwt,1);  //macAddress
+                $res->isSuccess = TRUE;
+                $res->code = 100;
+                $res->message = "로그인 성공";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+
+
+
+        case "logout":
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            if (!isValidHeader($jwt, JWT_SECRET_KEY)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
+
+            http_response_code(200);
+            if(!isJwtSaved($jwt,1)) //macAddress
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 200;
+                $res->message = "토큰이 이미 만료되었습니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }else{
+                deleteJwt($jwt,1); //macAddress
+                $res->isSuccess = TRUE;
+                $res->code = 100;
+                $res->message = "로그아웃 성공";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+
+        case "changePassword":
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
+
+            http_response_code(200);
+            if(!isJwtSaved($jwt,1)) //macAddress
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 200;
+                $res->message = "토큰이 이미 만료되었습니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }else{
+                deleteJwt($jwt,1); //macAddress
+                $res->isSuccess = TRUE;
+                $res->code = 100;
+                $res->message = "로그인 삭제 성공";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
 
     }
 } catch (\Exception $e) {

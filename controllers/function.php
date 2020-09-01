@@ -19,20 +19,16 @@ function getSQLErrorException($errorLogs, $e, $req)
 
 function isValidHeader($jwt, $key)
 {
-    try {
         $data = getDataByJWToken($jwt, $key);
         //로그인 함수 직접 구현 요함
         if($data->status=="email")
         {
-            return isValidUserWithEmail($data->email, $data->password);
+            return isValidUser($data->email, $data->password);
         }
         if($data->status=="email")
         {
-            return isValidUserWithPhone($data->phone,$data->password);
+            return isValidUser($data->phone,$data->password);
         }
-    } catch (\Exception $e) {
-        return false;
-    }
 }
 
 function sendFcm($fcmToken, $data, $key, $deviceType)
@@ -88,7 +84,8 @@ function getJWTokenUserWithEmail($email, $pw, $userId, $secretKey)
         'email' => (string)$email,
         'password' => (string)$pw,
         'userId' => (int)$userId,
-        'status' => "email"
+        'status' => "email",
+        'login' => 1
     );
 
 
@@ -108,7 +105,8 @@ function getJWTokenUserWithPhone($phone, $pw, $userId, $secretKey)
         'phone' => (string)$phone,
         'password' => (string)$pw,
         'userId' => (int)$userId,
-        'status' => "phone"
+        'status' => "phone",
+        'login' => 1
 
     );
 
@@ -121,6 +119,7 @@ function getJWTokenUserWithPhone($phone, $pw, $userId, $secretKey)
 //    $decoded = JWT::decode($jwt, $secretKey, array('HS256'))
 //    print_r($decoded);
 }
+
 
 function getDataByJWToken($jwt, $secretKey)
 {
