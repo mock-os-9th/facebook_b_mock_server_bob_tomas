@@ -19,16 +19,20 @@ function getSQLErrorException($errorLogs, $e, $req)
 
 function isValidHeader($jwt, $key)
 {
+    try {
         $data = getDataByJWToken($jwt, $key);
         //로그인 함수 직접 구현 요함
         if($data->status=="email")
         {
             return isValidUser($data->email, $data->password);
         }
-        if($data->status=="email")
+        if($data->status=="phone")
         {
             return isValidUser($data->phone,$data->password);
         }
+    } catch (\Exception $e) {
+        return false;
+    }
 }
 
 function sendFcm($fcmToken, $data, $key, $deviceType)

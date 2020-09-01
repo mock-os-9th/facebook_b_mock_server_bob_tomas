@@ -176,7 +176,7 @@ try {
                 }
             }
                 if(!is_null($email)) {
-                    if (!isValidUser($email,$phone))
+                    if (!isValidUser($email,$password))
                     {
                         $res->isSuccess = false;
                         $res->code = 220;
@@ -221,7 +221,7 @@ try {
             }
 
             http_response_code(200);
-            if(!isJwtSaved($jwt,1)) //macAddress
+            if(!isJwtSaved($jwt,"1")) //macAddress
             {
                 $res->isSuccess = FALSE;
                 $res->code = 200;
@@ -230,7 +230,7 @@ try {
                 addErrorLogs($errorLogs, $res, $req);
                 break;
             }else{
-                deleteJwt($jwt,1); //macAddress
+                deleteJwt($jwt,"1"); //macAddress
                 $res->isSuccess = TRUE;
                 $res->code = 100;
                 $res->message = "로그아웃 성공";
@@ -251,7 +251,7 @@ try {
             }
 
             http_response_code(200);
-            if(!isJwtSaved($jwt,1)) //macAddress
+            if(!isJwtSaved($jwt,"1")) //macAddress
             {
                 $res->isSuccess = FALSE;
                 $res->code = 200;
@@ -260,14 +260,13 @@ try {
                 addErrorLogs($errorLogs, $res, $req);
                 break;
             }else{
-                deleteJwt($jwt,1); //macAddress
+                deleteJwt($jwt,"1"); //macAddress
                 $res->isSuccess = TRUE;
                 $res->code = 100;
                 $res->message = "로그인 삭제 성공";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
-
 
     }
 } catch (\Exception $e) {

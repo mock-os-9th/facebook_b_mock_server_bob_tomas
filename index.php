@@ -17,18 +17,14 @@ error_reporting(E_ALL); ini_set("display_errors", 1);
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
     /* ******************   Test   ****************** */
     $r->addRoute('GET', '/', ['IndexController', 'index']);
-
     $r->addRoute('POST', '/user', ['UserController', 'createUser']);
     $r->addRoute('POST', '/login', ['UserController', 'login']);
-    $r->addRoute('POST', '/logout', ['UserController', 'logout']);
+    $r->addRoute('DELETE', '/logout', ['UserController', 'logout']);
     $r->addRoute('PUT', '/changePassword', ['UserController', 'changePassword']);
 
-    $r->addRoute('GET', '/user/{userId}', ['UserInfoController', 'createUser']);
-    $r->addRoute('GET', '/test/{testNo}', ['IndexController', 'testDetail']);
-    $r->addRoute('POST', '/test', ['IndexController', 'testPost']);
-    $r->addRoute('GET', '/jwt', ['MainController', 'validateJwt']);
-    $r->addRoute('POST', '/jwt', ['MainController', 'createJwt']);
 
+    $r->addRoute('GET', '/jwt', ['MainController', 'validateJwt']);
+    $r->addRoute('GET', '/jwt-data', ['MainController', 'data']);
 
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');

@@ -268,7 +268,7 @@ function saveJWT($jwt,$macAddress)
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$jwt,$macAddress]);
+    $st->execute([$jwt,(string)$macAddress]);
 
     $st=null;$pdo = null;
 }
@@ -276,11 +276,11 @@ function saveJWT($jwt,$macAddress)
 function isJwtSaved($jwt,$macAddress)
 {
     $pdo = pdoSqlConnect();
-    $query = "select exists(select * from JWT where jwt=? and macAddress =?);";
+    $query = "select exists(select * from JWT where jwt=? and macAddress =?) as exist;";
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$jwt,$macAddress]);
+    $st->execute([$jwt,(string)$macAddress]);
 
     $st=null;$pdo = null;
 }
