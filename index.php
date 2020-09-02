@@ -2,6 +2,7 @@
 require './pdos/DatabasePdo.php';
 require './pdos/IndexPdo.php';
 require './pdos/UserPdo.php';
+require './pdos/PostPdo.php';
 require './pdos/profilePdo.php';
 require './pdos/PostPdo.php';
 require './vendor/autoload.php';
