@@ -175,37 +175,37 @@ try {
                     break;
                 }
             }
-            if(!is_null($email)) {
-                if (!isValidUser($email,$password))
+                if(!is_null($email)) {
+                    if (!isValidUser($email,$password))
+                    {
+                        $res->isSuccess = false;
+                        $res->code = 220;
+                        $res->message = "비밀번호가 틀렸습니다";
+                        echo json_encode($res);
+                        break;
+                    }
+                    $userId=getUserIdfromEmail($email);
+                    $jwt = getJWTokenUser($email, $password, $userId, JWT_SECRET_KEY);
+                }elseif(!is_null($phone))
                 {
-                    $res->isSuccess = false;
-                    $res->code = 220;
-                    $res->message = "비밀번호가 틀렸습니다";
-                    echo json_encode($res);
-                    break;
+                    if (!isValidUser($phone,$password))
+                    {
+                        $res->isSuccess = false;
+                        $res->code = 220;
+                        $res->message = "비밀번호가 틀렸습니다";
+                        echo json_encode($res);
+                        break;
+                    }
+                    $userId=getUserIdfromPhone($phone);
+                    $jwt = getJWTokenUser( $phone, $password, $userId, JWT_SECRET_KEY);
                 }
-                $userId=getUserIdfromEmail($email);
-                $jwt = getJWTokenUser($email, $password, $userId, JWT_SECRET_KEY);
-            }elseif(!is_null($phone))
-            {
-                if (!isValidUser($phone,$password))
-                {
-                    $res->isSuccess = false;
-                    $res->code = 220;
-                    $res->message = "비밀번호가 틀렸습니다";
-                    echo json_encode($res);
-                    break;
-                }
-                $userId=getUserIdfromPhone($phone);
-                $jwt = getJWTokenUser( $phone, $password, $userId, JWT_SECRET_KEY);
-            }
-            $res->jwt= $jwt;
-            saveJWT($jwt,1);  //macAddress
-            $res->isSuccess = TRUE;
-            $res->code = 100;
-            $res->message = "로그인 성공";
-            echo json_encode($res);
-            break;
+                $res->jwt= $jwt;
+                saveJWT($jwt,1);  //macAddress
+                $res->isSuccess = TRUE;
+                $res->code = 100;
+                $res->message = "로그인 성공";
+                echo json_encode($res);
+                break;
 
 
 
@@ -317,3 +317,4 @@ try {
 } catch (\Exception $e) {
     return getSQLErrorException($errorLogs, $e, $req);
 }
+

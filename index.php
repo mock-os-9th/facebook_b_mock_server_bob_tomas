@@ -18,10 +18,19 @@ error_reporting(E_ALL); ini_set("display_errors", 1);
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
     /* ******************   Test   ****************** */
     $r->addRoute('GET', '/', ['IndexController', 'index']);
-    $r->addRoute('POST', '/user', ['UserController', 'createUser']);
-    $r->addRoute('POST', '/login', ['UserController', 'login']);
-    $r->addRoute('DELETE', '/logout', ['UserController', 'logout']);
-    $r->addRoute('PUT', '/change-password', ['UserController', 'changePassword']);
+
+    $r->addRoute('POST', '/user', ['UserController', 'createUser']); //회원가입
+    $r->addRoute('POST', '/login', ['UserController', 'login']); //로그인
+    $r->addRoute('DELETE', '/logout', ['UserController', 'logout']); //로그인 정보 삭제, 로그아웃(토큰 무력화)
+    $r->addRoute('PUT', '/change-password', ['UserController', 'changePassword']); //비밀번호 변경
+//    $r->addRoute('GET', '/find-password', ['UserController', 'findPassword']); //비밀번호 찾기
+    $r->addRoute('DELETE', '/user', ['UserController', 'deleteUser']); //유저 탈퇴
+
+
+    $r->addRoute('POST', '/post', ['PostController', 'createPost']); //게시글 생성
+    $r->addRoute('PUT', '/post', ['PostController', 'updatePost']); //게시글 수정
+    $r->addRoute('PUT', '/post-open', ['PostController', 'updatePostOpen']); //게시글 공개범위 생성
+    $r->addRoute('DELETE', '/post/{postId}', ['PostController', 'deletePost']); //게시글 삭제
 
 
     $r->addRoute('GET', '/jwt', ['MainController', 'validateJwt']);
