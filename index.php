@@ -26,7 +26,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 //    $r->addRoute('GET', '/find-password', ['UserController', 'findPassword']); //비밀번호 찾기
     $r->addRoute('DELETE', '/user', ['UserController', 'deleteUser']); //유저 탈퇴
 
-
+    $r->addRoute('POST', '/upload-files', ['PostController', 'uploadFiles']); //게시글 생성
     $r->addRoute('POST', '/post', ['PostController', 'createPost']); //게시글 생성
     $r->addRoute('PUT', '/post', ['PostController', 'updatePost']); //게시글 수정
     $r->addRoute('PUT', '/post-open', ['PostController', 'updatePostOpen']); //게시글 공개범위 생성
