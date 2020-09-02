@@ -33,9 +33,18 @@ try {
          * 마지막 수정 날짜 : 20.08.31
          */
         case "openModifyPage":
-            $num = 1;
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
             http_response_code(200);
-            $res->result->openModifyPage = openModifyPage($num); // 수정필요
+            $res->result->openModifyPage = openModifyPage($data->userId); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "상세 프로필 조회 성공";
@@ -49,9 +58,16 @@ try {
          * 마지막 수정 날짜 : 20.08.31
          */
         case "introduceModify":
-            $num = 1;
             http_response_code(200);
-
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             if(is_null($req->contents)||$req->contents==""){
                 $res->isSuccess = FALSE;
                 $res->code = 200;
@@ -69,7 +85,7 @@ try {
                 break;
             }
 
-            modifyIntroduce($req->contents,$num); // 수정필요
+            modifyIntroduce($req->contents,$data->userId); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "소개 수정 성공";
@@ -84,7 +100,15 @@ try {
          * 마지막 수정 날짜 : 20.08.31
          */
         case "introduceDelete":
-            $num = 1;
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             http_response_code(200);
 
             if(is_null($req->contents)||$req->contents==""){
@@ -96,7 +120,7 @@ try {
                 break;
             }
 
-            deleteIntroduce($num); // 수정필요
+            deleteIntroduce($data->userId); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "소개 수정 성공";
@@ -110,10 +134,18 @@ try {
          * 마지막 수정 날짜 : 20.08.31
          */
         case "modifyHobby":
-            $num = 1;
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             http_response_code(200);
 
-            modifyHobby($req->contents,$num); // 수정필요
+            modifyHobby($req->contents,$data->userId); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "취미 수정 성공";
@@ -129,10 +161,18 @@ try {
         */
         case "getAllFriends":
             http_response_code(200);
-            $num = 1;
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             $offset = $_GET['offset']*50;
 
-            if(userProfileFriendsCount($num)['friendsCount']<$offset){
+            if(userProfileFriendsCount($data->userId)['friendsCount']<$offset){
                 $res->isSuccess = TRUE;
                 $res->code = 200;
                 $res->message = "더 이상 친구가 없습니다.";
@@ -142,7 +182,7 @@ try {
 
             }
 
-            $res->result = getAllFriends($num, $offset); // 수정필요
+            $res->result = getAllFriends($data->userId, $offset); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "친구목록 조회 성공";
@@ -158,9 +198,19 @@ try {
         */
         case "getMyDetailPage":
             http_response_code(200);
-            $num = 1;
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
 
-            $res->result = getMyDetailPage($num); // 수정필요
+            $res->result->work = getMyDetailWork($data->userId); // 수정필요
+            $res->result->School = getMyDetailSchool($data->userId); // 수정필요
+            $res->result->living = getMyDetail($data->userId); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "친구목록 조회 성공";
@@ -169,6 +219,74 @@ try {
             break;
 
 
+        case "insertProfileImage":
+            http_response_code(200);
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            $name = $_POST['name'];
+
+            $file_path = './photos/' . $name . '.jpg';
+            $file_calling = '3.35.3.242/photos/' . $name . '.jpg';
+            move_uploaded_file($_FILES['uploaded_file']['tmp_name'], $file_path);
+            if (isValidFileName($file_calling)) {
+                $res->isSuccess = FALSE;
+                $res->code = 205;
+                $res->message = "파일이름이 중복입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            postImgUrl($data->userId, $file_calling);
+            $photoId = getPhotoId($file_calling);
+            setProfileImage($data->userId, $photoId);
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "프로필사진 등록 성공";
+
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
+        case "insertCoverImage":
+            http_response_code(200);
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            $name = $_POST['name'];
+
+            $file_path = './photos/' . $name . '.jpg';
+            $file_calling = '3.35.3.242/photos/' . $name . '.jpg';
+            move_uploaded_file($_FILES['uploaded_file']['tmp_name'], $file_path);
+            if (isValidFileName($file_calling)) {
+                $res->isSuccess = FALSE;
+                $res->code = 205;
+                $res->message = "파일이름이 중복입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            postImgUrl($data->userId, $file_calling);
+            $photoId = getPhotoId($file_calling);
+            setCoverImage($data->userId, $photoId);
+
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "커버사진 등록 성공";
+
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
 
 
     }

@@ -258,22 +258,15 @@ function getAllFriendsCount($userIdx){
     return $res;
 }
 
-function getMyDetailPage($userIdx){
+function getMyDetailWork($userIdx){
     $pdo = pdoSqlConnect();
-    $query = "SELECT count(*)
-                FROM users U1
-                LEFT JOIN (select PH.*
-                     FROM profileImage P
-                      JOIN photos PH
-                      ON PH.id = P.photoId) PRO
-                  ON U1.id = PRO.userId
-                WHERE U1.id IN (SELECT IF((U2.id=F.user1Id), F.user2Id, F.user1Id)
-                             FROM users U2
-                             JOIN friends F
-                               ON U2.id = F.user1Id
-                OR U2.id = F.user2Id
-                AND F.status = 1
-              WHERE U2.id = ?);";
+    $query = "SELECT P.name, W.startAt, IF(ISNULL(W.endAt), '현재', W.endAt) endAt, P.id pageIdx, IF(ISNULL(PH.image), '프로필없음', PH.image) image
+                FROM work W
+                LEFT JOIN pages P
+                  ON W.workId = P.id
+                LEFT JOIN pagephotos PH
+                  ON P.profileId = PH.id
+                WHERE W.userId = ?;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx]);
@@ -285,4 +278,147 @@ function getMyDetailPage($userIdx){
     $pdo = null;
 
     return $res;
+}
+
+function getMyDetailSchool($userIdx){
+    $pdo = pdoSqlConnect();
+    $query = "SELECT P.name, S.startAt, IF(ISNULL(S.endAt), '현재', S.endAt) endAt, P.id pageIdx, IF(ISNULL(PH.image), '프로필없음', PH.image) image
+                FROM school S
+                LEFT JOIN pages P
+                  ON S.schoolId = P.id
+                LEFT JOIN pagephotos PH
+                  ON P.profileId = PH.id
+                WHERE S.userId = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
+
+
+function getMyDetail($userIdx){
+    $pdo = pdoSqlConnect();
+    $query = "SELECT phone, IF(sex=0,'비공개',IF(sex=1, '남자', '여자')) sex, birth, 
+       IF(ISNULL(hobby), '등록된 취미 없음', hobby) hobby,
+       IF(ISNULL(living), '정보없음', living) living,
+       IF(ISNULL(users.from), '정보없음', users.from) hometown,
+       IF(ISNULL(couple), '정보없음', couple) couple,
+       IF(ISNULL(couple), '정보없음', coupleAnni) coupleAnni
+                FROM users
+                WHERE id = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
+
+function postPhotos($userIdx, $img){
+    $pdo = pdoSqlConnect();
+    $query = "INSERT INTO photos (USERID, IMAGE, GETAT) 
+              VALUES(?, ?, CURRENT_TIMESTAMP);";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx, $img]);
+
+    $st = null;
+    $pdo = null;
+}
+
+function getPhotoId($img){
+    $pdo = pdoSqlConnect();
+    $query = "SELECT id
+              FROM photos
+              WHERE image = ?";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$img]);
+
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0]["id"];
+}
+
+function postProfileImage($userIdx, $photoId){
+    $pdo = pdoSqlConnect();
+    $query = "INSERT INTO profileImage (USERID, photoId, GETAT)
+              VALUES(?, ?, CURRENT_TIMESTAMP);";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx, $photoId]);
+
+    $st = null;
+    $pdo = null;
+}
+
+function postImgUrl($userIdx, $url){
+    $pdo = pdoSqlConnect();
+    $query = "INSERT INTO photos(userId, image, getAt) 
+              VALUES (?, ?, CURRENT_TIMESTAMP);";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx, $url]);
+
+    $st = null;
+    $pdo = null;
+}
+
+function isValidFileName($filename){
+    $pdo = pdoSqlConnect();
+    $query = "SELECT EXISTS (SELECT *
+                             FROM photos
+                             WHERE image = ?) exist";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$filename]);
+
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return intval($res[0]["exist"]);
+}
+
+function setProfileImage($userId, $photoId){
+    $pdo = pdoSqlConnect();
+    $query = "INSERT INTO profileImage(userId, photoId, getAt)
+              VALUES (?, ?, CURRENT_TIMESTAMP);";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userId, $photoId]);
+
+    $st = null;
+    $pdo = null;
+}
+
+
+function setCoverImage($userId, $photoId){
+    $pdo = pdoSqlConnect();
+    $query = "INSERT INTO coverImage(userId, photoId, getAt)
+              VALUES (?, ?, CURRENT_TIMESTAMP);";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userId, $photoId]);
+
+    $st = null;
+    $pdo = null;
 }

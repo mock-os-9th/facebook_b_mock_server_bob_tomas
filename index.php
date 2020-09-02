@@ -1,6 +1,7 @@
 <?php
 require './pdos/DatabasePdo.php';
 require './pdos/IndexPdo.php';
+require './pdos/UserPdo.php';
 require './pdos/profilePdo.php';
 require './vendor/autoload.php';
 
@@ -17,11 +18,14 @@ error_reporting(E_ALL); ini_set("display_errors", 1);
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
     /* ******************   Test   ****************** */
     $r->addRoute('GET', '/', ['IndexController', 'index']);
-    $r->addRoute('GET', '/test', ['IndexController', 'test']);
-    $r->addRoute('GET', '/test/{testNo}', ['IndexController', 'testDetail']);
-    $r->addRoute('POST', '/test', ['IndexController', 'testPost']);
+    $r->addRoute('POST', '/user', ['UserController', 'createUser']);
+    $r->addRoute('POST', '/login', ['UserController', 'login']);
+    $r->addRoute('DELETE', '/logout', ['UserController', 'logout']);
+    $r->addRoute('PUT', '/change-password', ['UserController', 'changePassword']);
+
+
     $r->addRoute('GET', '/jwt', ['MainController', 'validateJwt']);
-    $r->addRoute('POST', '/jwt', ['MainController', 'createJwt']);
+    $r->addRoute('GET', '/jwt-data', ['MainController', 'data']);
 
 
     $r->addRoute('GET', '/profile/{userIdx}', ['ProfileController', 'getProfile']);
@@ -32,8 +36,8 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     $r->addRoute('GET', '/allFriend', ['ProfileController', 'getAllFriends']);
 
-    $r->addRoute('GET', '/myDetailPage', ['ProfileController', 'getMyDetailPage']);
-
+    $r->addRoute('POST', '/insertProfileImage', ['ProfileController', 'insertProfileImage']);
+    $r->addRoute('POST', '/insertCoverImage', ['ProfileController', 'insertCoverImage']);
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
 //    // {id} must be a number (\d+)
@@ -90,6 +94,11 @@ switch ($routeInfo[0]) {
                 $handler = $routeInfo[1][1];
                 $vars = $routeInfo[2];
                 require './controllers/MainController.php';
+                break;
+            case 'UserController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/UserController.php';
                 break;
             case 'ProfileController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
