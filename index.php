@@ -110,6 +110,11 @@ switch ($routeInfo[0]) {
                 $vars = $routeInfo[2];
                 require './controllers/UserController.php';
                 break;
+            case 'PostController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/PostController.php';
+                break;
             case 'ProfileController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
                 require './controllers/ProfileController.php';
