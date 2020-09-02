@@ -92,7 +92,11 @@ function phoneCheck($phone)
     }
     if(preg_match("/[^0-9]/i", $phone)==true)
     {
-        return array(false,210,"전화번호는 숫자로된 문자열로만 입력해주세요");
+        return array(false,210,"전화번호는 숫자로된 문자열로 입력해주세요");
+    }
+    if(strlen($phone) !=10 && strlen($phone) != 11)
+    {
+        return array(false,222,"올바르지 않은 번호");
     }
     return array(true);
 }
@@ -197,7 +201,7 @@ function createUserWithPhone($lastName,$firstName,$birth,$phone,$sex,$password)
     $query1 = "INSERT INTO users (lastName,firstName,birth, phone,sex,password) VALUES (?,?,?,?,?,?);";
 
     $st1 = $pdo->prepare($query1);
-    $st1->execute([$lastName,$firstName,$birth,$phone,$sex,$password]);
+    $st1->execute([$lastName,$firstName,$birth,(string)$phone,$sex,$password]);
 
     $st1 = null;
     $pdo = null;
@@ -346,4 +350,127 @@ function changeJWT($newJwt,$wasJwt,$macAddress)
     $st->execute([$newJwt,$macAddress,$wasJwt]);
 
     $st=null;$pdo = null;
+}
+
+function deleteUser($userId,$jwt)
+{
+    $pdo = pdoSqlConnect();
+    $query = "delete from loginTable where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from checkIn where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from coverImage where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from friends where user1Id = ? or user2Id =  ?;";
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$userId,$userId]);
+    $st=null;
+    $query = "delete from friendsRequest where user1Id = ? or user2Id =?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId,$userId]);
+    $st=null;
+    $query = "delete from group1 where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from groupApply where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from groupMembers where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from groupphotos where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from JWT where jwt = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$jwt]);
+    $st=null;
+    $query = "delete from pageLike where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from loginTable where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from pages where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from photos where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from postBanned where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from postLike where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from postNameTag where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from posts where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from postShowed where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from profileImage where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from postTag where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from profileImage where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from reply where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from replyLike where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from replyNameTag where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from school where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from userContents where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from users where id = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $query = "delete from work where userId = ?;";
+    $st = $pdo->prepare($query);
+    $st->execute([$userId]);
+    $st=null;
+    $pdo=null;
 }
