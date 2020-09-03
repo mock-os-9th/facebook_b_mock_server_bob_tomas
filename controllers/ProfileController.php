@@ -18,7 +18,7 @@ try {
 
             http_response_code(200);
             $res->result->profile = userProfile($vars["userIdx"]);
-            $res->result = userProfileFriendsCount($vars["userIdx"]);
+            $res->result->friendsCount = userProfileFriendsCount($vars["userIdx"]);
             $res->result->friends = userProfileFriends($vars["userIdx"]);
             $res->isSuccess = TRUE;
             $res->code = 100;
