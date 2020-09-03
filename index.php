@@ -4,6 +4,7 @@ require './pdos/IndexPdo.php';
 require './pdos/UserPdo.php';
 //require './pdos/PostPdo.php';
 require './vendor/autoload.php';
+require './pdos/profilePdo.php';
 
 use \Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
