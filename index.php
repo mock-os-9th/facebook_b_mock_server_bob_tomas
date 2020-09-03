@@ -45,7 +45,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('DELETE', '/introduceDelete', ['ProfileController', 'introduceDelete']);
     $r->addRoute('PATCH', '/hobbyModify', ['ProfileController', 'modifyHobby']);
 
-    $r->addRoute('GET', '/allFriend', ['ProfileController', 'getAllFriends']);
+    $r->addRoute('GET', '/allFriend/{userIdx}', ['ProfileController', 'getAllFriends']);
 
     $r->addRoute('POST', '/insertProfileImage', ['ProfileController', 'insertProfileImage']);
     $r->addRoute('POST', '/insertCoverImage', ['ProfileController', 'insertCoverImage']);

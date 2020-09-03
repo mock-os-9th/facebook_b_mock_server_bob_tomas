@@ -172,7 +172,7 @@ try {
             }
             $offset = $_GET['offset']*50;
 
-            if(userProfileFriendsCount($data->userId)['friendsCount']<$offset){
+            if(userProfileFriendsCount($vars['userIdx'])['friendsCount']<$offset){
                 $res->isSuccess = TRUE;
                 $res->code = 200;
                 $res->message = "더 이상 친구가 없습니다.";
@@ -182,7 +182,7 @@ try {
 
             }
 
-            $res->result = getAllFriends($data->userId, $offset); // 수정필요
+            $res->result = getAllFriends($vars['userIdx'], $offset); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "친구목록 조회 성공";
