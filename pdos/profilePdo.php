@@ -161,7 +161,7 @@ WHERE U.id = ?;";
     $st = null;
     $pdo = null;
 
-    return $res;
+    return $res[0];
 }
 
 function modifyIntroduce($contents, $userIdx){
@@ -211,7 +211,8 @@ function getAllFriends($userIdx, $offset){
                 LEFT JOIN (select PH.*
                      FROM profileImage P
                       JOIN photos PH
-                      ON PH.id = P.photoId) PRO
+                      ON PH.id = P.photoId
+                      LIMIT 1) PRO
                   ON U1.id = PRO.userId
                 WHERE U1.id IN (SELECT IF((U2.id=F.user1Id), F.user2Id, F.user1Id)
                              FROM users U2

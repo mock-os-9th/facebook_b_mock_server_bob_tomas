@@ -44,7 +44,7 @@ try {
                 break;
             }
             http_response_code(200);
-            $res->result->openModifyPage = openModifyPage($data->userId); // 수정필요
+            $res->result = openModifyPage($data->userId); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "상세 프로필 조회 성공";
@@ -111,19 +111,11 @@ try {
             }
             http_response_code(200);
 
-            if(is_null($req->contents)||$req->contents==""){
-                $res->isSuccess = FALSE;
-                $res->code = 200;
-                $res->message = "삭제할 값이 없습니다.";
-
-                echo json_encode($res, JSON_NUMERIC_CHECK);
-                break;
-            }
 
             deleteIntroduce($data->userId); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
-            $res->message = "소개 수정 성공";
+            $res->message = "소개 삭제 성공";
 
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
