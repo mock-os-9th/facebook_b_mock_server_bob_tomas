@@ -130,3 +130,13 @@ function putMainContent($mainContent)
 {
 
 }
+
+function createPostWithFiles($userId,$mainPostId)
+{
+
+}
+
+function savePostFiles($thisPostId,$saveFilesId)
+{
+    
+}
