@@ -1,5 +1,5 @@
 <?php
-
+/*
 function saveFile($files,$data,$req,$i)
 {
     $sumSize=0;

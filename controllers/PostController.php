@@ -1,4 +1,5 @@
 <?php
+/*
 require 'function.php';
 
 const JWT_SECRET_KEY = "TEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEY";
@@ -19,11 +20,7 @@ try {
             header('Content-Type: text/html; charset=UTF-8');
             getLogs("./logs/errors.log");
             break;
-        /*
-         * API No. 0
-         * API Name : 테스트 API
-         * 마지막 수정 날짜 : 19.04.29
-         */
+
         case "createPost":
             $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
             if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
@@ -82,11 +79,6 @@ try {
                     savePostFiles($thisPostId,$saveFilesId);
                 }
             }
-        /*
-         * API No. 0
-         * API Name : 테스트 Path Variable API
-         * 마지막 수정 날짜 : 19.04.29
-         */
         case "updatePost":
             http_response_code(200);
             $res->result = testDetail($vars["testNo"]);
@@ -95,11 +87,7 @@ try {
             $res->message = "테스트 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
-        /*
-         * API No. 0
-         * API Name : 테스트 Body & Insert API
-         * 마지막 수정 날짜 : 19.04.29
-         */
+
         case "updatePostOpen":
             http_response_code(200);
             $res->result = testPost($req->name);
@@ -120,4 +108,4 @@ try {
     }
 } catch (\Exception $e) {
     return getSQLErrorException($errorLogs, $e, $req);
-}
+}*/

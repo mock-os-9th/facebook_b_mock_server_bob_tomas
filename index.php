@@ -2,7 +2,7 @@
 require './pdos/DatabasePdo.php';
 require './pdos/IndexPdo.php';
 require './pdos/UserPdo.php';
-require './pdos/PostPdo.php';
+//require './pdos/PostPdo.php';
 require './vendor/autoload.php';
 
 use \Monolog\Logger as Logger;
@@ -26,11 +26,11 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 //    $r->addRoute('GET', '/find-password', ['UserController', 'findPassword']); //비밀번호 찾기
     $r->addRoute('DELETE', '/user', ['UserController', 'deleteUser']); //유저 탈퇴
 
-    $r->addRoute('POST', '/upload-files', ['PostController', 'uploadFiles']); //게시글 생성
-    $r->addRoute('POST', '/post', ['PostController', 'createPost']); //게시글 생성
-    $r->addRoute('PUT', '/post', ['PostController', 'updatePost']); //게시글 수정
-    $r->addRoute('PUT', '/post-open', ['PostController', 'updatePostOpen']); //게시글 공개범위 생성
-    $r->addRoute('DELETE', '/post/{postId}', ['PostController', 'deletePost']); //게시글 삭제
+//    $r->addRoute('POST', '/upload-files', ['PostController', 'uploadFiles']); //게시글 생성
+//    $r->addRoute('POST', '/post', ['PostController', 'createPost']); //게시글 생성
+//    $r->addRoute('PUT', '/post', ['PostController', 'updatePost']); //게시글 수정
+//    $r->addRoute('PUT', '/post-open', ['PostController', 'updatePostOpen']); //게시글 공개범위 생성
+//    $r->addRoute('DELETE', '/post/{postId}', ['PostController', 'deletePost']); //게시글 삭제
 
 
     $r->addRoute('GET', '/jwt', ['MainController', 'validateJwt']);
@@ -98,11 +98,11 @@ switch ($routeInfo[0]) {
                 $vars = $routeInfo[2];
                 require './controllers/UserController.php';
                 break;
-            case 'PostController':
-                $handler = $routeInfo[1][1];
-                $vars = $routeInfo[2];
-                require './controllers/PostController.php';
-                break;
+//            case 'PostController':
+//                $handler = $routeInfo[1][1];
+//                $vars = $routeInfo[2];
+//                require './controllers/PostController.php';
+//                break;
             /*case 'EventController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
                 require './controllers/EventController.php';
