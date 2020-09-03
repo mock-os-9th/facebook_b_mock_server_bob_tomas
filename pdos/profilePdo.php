@@ -38,7 +38,7 @@ FROM users U
 WHERE U.id = ?;";
 
     $st = $pdo->prepare($query);
-    $st->execute([$userIdx, $userIdx, $userIdx]);
+    $st->execute([$userIdx, $userIdx, $userIdx, $userIdx]);
 
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
