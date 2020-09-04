@@ -262,6 +262,8 @@ try {
             $file_path = './photos/' . $name . '.jpg';
             $file_calling = '3.35.3.242/photos/' . $name . '.jpg';
             move_uploaded_file($_FILES['uploaded_file']['tmp_name'], $file_path);
+
+
             if (isValidFileName($file_calling)) {
                 $res->isSuccess = FALSE;
                 $res->code = 205;

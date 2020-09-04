@@ -39,15 +39,15 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
 
     $r->addRoute('GET', '/profile/{userIdx}', ['ProfileController', 'getProfile']);
-    $r->addRoute('GET', '/openModifyPage', ['ProfileController', 'openModifyPage']);
-    $r->addRoute('PATCH', '/introduceModify', ['ProfileController', 'introduceModify']);
-    $r->addRoute('DELETE', '/introduceDelete', ['ProfileController', 'introduceDelete']);
-    $r->addRoute('PATCH', '/hobbyModify', ['ProfileController', 'modifyHobby']);
+    $r->addRoute('GET', '/open-modify-page', ['ProfileController', 'openModifyPage']);
+    $r->addRoute('PATCH', '/introduce-modify', ['ProfileController', 'introduceModify']);
+    $r->addRoute('DELETE', '/introduce-delete', ['ProfileController', 'introduceDelete']);
+    $r->addRoute('PATCH', '/hobby-modify', ['ProfileController', 'modifyHobby']);
 
-    $r->addRoute('GET', '/allFriend/{userIdx}', ['ProfileController', 'getAllFriends']);
+    $r->addRoute('GET', '/all-friend/{userIdx}', ['ProfileController', 'getAllFriends']);
 
-    $r->addRoute('POST', '/insertProfileImage', ['ProfileController', 'insertProfileImage']);
-    $r->addRoute('POST', '/insertCoverImage', ['ProfileController', 'insertCoverImage']);
+    $r->addRoute('POST', '/insert-profile-image', ['ProfileController', 'insertProfileImage']);
+    $r->addRoute('POST', '/insert-cover-image', ['ProfileController', 'insertCoverImage']);
 
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
