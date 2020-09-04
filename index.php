@@ -2,7 +2,7 @@
 require './pdos/DatabasePdo.php';
 require './pdos/IndexPdo.php';
 require './pdos/UserPdo.php';
-//require './pdos/PostPdo.php';
+require './pdos/PostPdo.php';
 require './vendor/autoload.php';
 require './pdos/profilePdo.php';
 
@@ -27,14 +27,12 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 //    $r->addRoute('GET', '/find-password', ['UserController', 'findPassword']); //비밀번호 찾기
     $r->addRoute('DELETE', '/user', ['UserController', 'deleteUser']); //유저 탈퇴
 
-    $r->addRoute('POST', '/posts', ['PostController', 'createPost']); //게시글 생성
-    $r->addRoute('POST', '/test-files', ['PostController', 'testFiles']); //게시글 생성
 
     $r->addRoute('POST', '/posts', ['PostController', 'createPost']); //게시글 생성
 
-//    $r->addRoute('PUT', '/post', ['PostController', 'updatePost']); //게시글 수정
-//    $r->addRoute('PUT', '/post-open', ['PostController', 'updatePostOpen']); //게시글 공개범위 생성
-//    $r->addRoute('DELETE', '/post/{postId}', ['PostController', 'deletePost']); //게시글 삭제
+    $r->addRoute('POST', '/posts/{mainPostId}', ['PostController', 'updatePost']); //게시글 수정
+    $r->addRoute('PUT', '/post-open/{mainPostId}', ['PostController', 'updatePostOpen']); //게시글 공개범위 생성
+    $r->addRoute('DELETE', '/posts/{mainPostId}', ['PostController', 'deletePost']); //게시글 삭제
 
 
     $r->addRoute('GET', '/jwt', ['MainController', 'validateJwt']);

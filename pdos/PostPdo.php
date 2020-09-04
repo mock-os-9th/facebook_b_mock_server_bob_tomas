@@ -112,7 +112,7 @@ limit 1;";
 function putCheckIn($checkIn,$mainPostId)
 {
     $pdo = pdoSqlConnect();
-    $query = "update  posts set checkInPageId=? where id=?;";
+    $query = "update  posts set pageId=? where id=?;";
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
@@ -211,4 +211,103 @@ function savePostFiles($thisPostId,$saveFilesId,$files,$i)
         $pdo=null;
     }
 
+}
+
+function isPostWriter($mainPostId,$userId)
+{
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from posts where userId=? and id=?) as exist;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);œ
+    $st->execute([$userId,$mainPostId]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+    $st=null;
+    $pdo = null;
+
+    return $res[0]["exist"];
+}
+
+function updateContent($changeFileComment,$changeFilePostId)
+{
+    $pdo = pdoSqlConnect();
+    $query = "update posts set content=?,updateAt=current_timestamp where id=?;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$changeFileComment,$changeFilePostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+    $st=null;$pdo = null;
+}
+
+function deleteFilePost($deleteFileId)
+{
+    $pdo = pdoSqlConnect();
+    $query = "update posts set status=2,updateAt=current_timestamp where id=?;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$deleteFileId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+    $st=null;$pdo = null;
+}
+
+function updateCheckIn($checkIn,$mainPostId)
+{
+    $pdo = pdoSqlConnect();
+    $query = "update posts set pageId=?,updateAt=current_timestamp  where id=?;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$checkIn,$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+    $st=null;$pdo = null;
+
+}
+function updateEmotion($emotion,$mainPostId)
+{
+    $pdo = pdoSqlConnect();
+    $query = "update posts set emotion=?,updateAt=current_timestamp  where id=?;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$emotion,$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+    $st=null;$pdo = null;
+}
+function updateIsOpen($isOpen,$mainPostId)
+{
+    $pdo = pdoSqlConnect();
+    $query = "update posts set isOpen=?,updateAt=current_timestamp  where id=? or child=?;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$isOpen,$mainPostId,$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+    $st=null;$pdo = null;
+}
+
+function deletePost($mainPostId)
+{
+    $pdo = pdoSqlConnect();
+    $query = "update posts set status=2,updateAt=current_timestamp  where id=? or child =?;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$mainPostId,$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+    $st=null;$pdo = null;
 }
