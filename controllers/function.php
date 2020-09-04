@@ -219,3 +219,4 @@ function getLogs($path)
 //        fpassthru($fp);
     fclose($fp);
 }
+
