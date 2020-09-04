@@ -124,6 +124,7 @@ try {
                 {
                     createUserWithPhone($lastName,$firstName,$birth,$phone,$sex,$password);
                     $userId=getUserIdfromPhone($phone);
+                    $res->phone=$userId;
                     $jwt = getJWTokenUser( $phone, $password, $userId, JWT_SECRET_KEY);
                     saveLogin($phone,$password);
                 }

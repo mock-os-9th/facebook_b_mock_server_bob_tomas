@@ -4,7 +4,7 @@
 function pdoSqlConnect()
 {
     try {
-        $DB_HOST = "facebooktestrds.cbjco5lbvu5u.ap-northeast-2.rds.amazonaws.com";
+        $DB_HOST = "facebookrds.cbjco5lbvu5u.ap-northeast-2.rds.amazonaws.com";
         $DB_NAME = "facebookTest";
         $DB_USER = "softsquared02";
         $DB_PW = "facesoft02!";
