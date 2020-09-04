@@ -205,7 +205,7 @@ function savePostFiles($thisPostId,$saveFilesId,$files,$i)
         $query = "insert into postFiles( postId,videoId) value (?,?);";
 
         $st = $pdo->prepare($query);
-        //    $st->execute([$param,$param]);
+        //    $st->execute([$param,$param]);œ
         $st->execute([$thisPostId,$saveFilesId]);
         $st=null;
         $pdo=null;
