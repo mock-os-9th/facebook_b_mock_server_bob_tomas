@@ -8,31 +8,37 @@ function userProfile($userIdx){
        IF(ISNULL(hobby), '등록된 취미 없음', hobby) hobby,
        IF(ISNULL(living)||isOpenLiving=0, '정보없음', living) living,
        IF(ISNULL(U.from)||isOpenFrom=0, '정보없음', U.from) hometown,
-       IF(EXISTS(SELECT *
-                 FROM profileImage P
-                 WHERE U.id = P.userId
-                 LIMIT 1), (select P.image
+       IF(EXISTS(select P.image
+                            from photos P
+                            join profileImage F
+                              ON P.id = F.photoId
+                             AND P.userId = ?
+                            ORDER BY F.getAt DESC
+                            LIMIT 1), (select P.image
                             from photos P
                             join profileImage F
                               ON P.id = F.photoId
                              AND P.userId = ?
                             ORDER BY F.getAt DESC
                             LIMIT 1), '프로필사진없음') profilePhoto,
-       IF(EXISTS(SELECT *
-                 FROM coverImage C
-                 WHERE U.id = C.userId
-                 LIMIT 1), (select P.image
+       IF(EXISTS(select P.image
                             from photos P
                             join coverImage C
                               ON P.id = C.photoId
-                             AND P.userId = ?
+                            WHERE P.userId = ?
+                            ORDER BY C.getAt DESC
+                            LIMIT 1), (select P.image
+                            from photos P
+                            join coverImage C
+                              ON P.id = C.photoId
+                            WHERE P.userId = ?
                             ORDER BY C.getAt DESC
                             LIMIT 1), '커버사진없음') coverPhoto
 FROM users U
 WHERE U.id = ?;";
 
     $st = $pdo->prepare($query);
-    $st->execute([$userIdx, $userIdx, $userIdx]);
+    $st->execute([$userIdx, $userIdx, $userIdx, $userIdx, $userIdx]);
 
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
@@ -155,7 +161,7 @@ WHERE U.id = ?;";
     $st = null;
     $pdo = null;
 
-    return $res;
+    return $res[0];
 }
 
 function modifyIntroduce($contents, $userIdx){
@@ -205,7 +211,8 @@ function getAllFriends($userIdx, $offset){
                 LEFT JOIN (select PH.*
                      FROM profileImage P
                       JOIN photos PH
-                      ON PH.id = P.photoId) PRO
+                      ON PH.id = P.photoId
+                      LIMIT 1) PRO
                   ON U1.id = PRO.userId
                 WHERE U1.id IN (SELECT IF((U2.id=F.user1Id), F.user2Id, F.user1Id)
                              FROM users U2

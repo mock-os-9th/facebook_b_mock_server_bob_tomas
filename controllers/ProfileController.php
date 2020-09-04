@@ -44,7 +44,7 @@ try {
                 break;
             }
             http_response_code(200);
-            $res->result->openModifyPage = openModifyPage($data->userId); // 수정필요
+            $res->result = openModifyPage($data->userId); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "상세 프로필 조회 성공";
@@ -111,19 +111,11 @@ try {
             }
             http_response_code(200);
 
-            if(is_null($req->contents)||$req->contents==""){
-                $res->isSuccess = FALSE;
-                $res->code = 200;
-                $res->message = "삭제할 값이 없습니다.";
-
-                echo json_encode($res, JSON_NUMERIC_CHECK);
-                break;
-            }
 
             deleteIntroduce($data->userId); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
-            $res->message = "소개 수정 성공";
+            $res->message = "소개 삭제 성공";
 
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
@@ -172,7 +164,7 @@ try {
             }
             $offset = $_GET['offset']*50;
 
-            if(userProfileFriendsCount($data->userId)['friendsCount']<$offset){
+            if(userProfileFriendsCount($vars['userIdx'])['friendsCount']<$offset){
                 $res->isSuccess = TRUE;
                 $res->code = 200;
                 $res->message = "더 이상 친구가 없습니다.";
@@ -182,7 +174,7 @@ try {
 
             }
 
-            $res->result = getAllFriends($data->userId, $offset); // 수정필요
+            $res->result = getAllFriends($vars['userIdx'], $offset); // 수정필요
             $res->isSuccess = TRUE;
             $res->code = 100;
             $res->message = "친구목록 조회 성공";
@@ -270,6 +262,8 @@ try {
             $file_path = './photos/' . $name . '.jpg';
             $file_calling = '3.35.3.242/photos/' . $name . '.jpg';
             move_uploaded_file($_FILES['uploaded_file']['tmp_name'], $file_path);
+
+
             if (isValidFileName($file_calling)) {
                 $res->isSuccess = FALSE;
                 $res->code = 205;
