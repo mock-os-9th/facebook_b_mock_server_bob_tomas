@@ -124,7 +124,6 @@ try {
                 {
                     createUserWithPhone($lastName,$firstName,$birth,$phone,$sex,$password);
                     $userId=getUserIdfromPhone($phone);
-                    $res->phone=$userId;
                     $jwt = getJWTokenUser( $phone, $password, $userId, JWT_SECRET_KEY);
                     saveLogin($phone,$password);
                 }
@@ -151,7 +150,7 @@ try {
                     $res->message = $emailChecked[2];
                     echo json_encode($res, JSON_NUMERIC_CHECK);
                     break;
-                } elseif (!duplicatedEmail($email)) {
+                } elseif (!isLoginSign($email)) {
                     $res->isSuccess = false;
                     $res->code = 217;
                     $res->message = "유효하지 않은 이메일";
@@ -168,7 +167,7 @@ try {
                     $res->message = $phoneChecked[2];
                     echo json_encode($res, JSON_NUMERIC_CHECK);
                     break;
-                } elseif (!duplicatedPhone($phone)) {
+                } elseif (!isLoginSign($phone)) {
                     $res->isSuccess = false;
                     $res->code = 218;
                     $res->message = "유효하지 않은 전화번호";
@@ -274,7 +273,7 @@ try {
             {
                 $res->isSuccess = FALSE;
                 $res->code = 203;
-                $res->message = "비밀번호가 일치하지 않습니다";
+                $res->message = "확인용 비밀번호가 일치하지 않습니다";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 addErrorLogs($errorLogs, $res, $req);
                 break;
@@ -282,8 +281,8 @@ try {
                 http_response_code(200);
 
                 changePassword($newPassword,$data->userId);
+                changeLoginTable($newPassword,$data->sign);
                 $newJwt=getJWTokenUser($data->sign,$newPassword,$data->userId,JWT_SECRET_KEY);
-                changeLoginTable($newPassword,$data->userId);
                 changeJWT($newJwt,$jwt,"1"); //macAddress
                 $res->newJwt = $newJwt;
                 $res->isSuccess = TRUE;
@@ -292,6 +291,25 @@ try {
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
+        case "deleteUser":
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            deleteUser($data->userId,$jwt,$data->sign);
+            http_response_code(200);
+            $res->isSuccess = TRUE;
+            $res->code = 100;
+            $res->message = "계정 삭제 성공";
+            echo json_encode($res);
+            break;
+
 
     }
 } catch (\Exception $e) {
