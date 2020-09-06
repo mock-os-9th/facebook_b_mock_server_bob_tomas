@@ -4,6 +4,7 @@ require './pdos/IndexPdo.php';
 require './pdos/UserPdo.php';
 require './pdos/PostPdo.php';
 require './pdos/ReplyPdo.php';
+require './pdos/LikePdo.php';
 require './vendor/autoload.php';
 require './pdos/profilePdo.php';
 
@@ -40,10 +41,13 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'deleteReply']); //댓글 삭제 10
     $r->addRoute('PUT', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'updateReply']); //댓글 수정(텍스트만 가능) 20
 
-//    $r->addRoute('POST', '/posts/{mainPostId}/likes', ['LikeController', 'createLike']); //좋아요 생성 30
-//    $r->addRoute('DELETE', '/posts/{mainPostId}/likes}', ['LikeController', 'deleteLike']); //좋아요 삭제 10
+    $r->addRoute('POST', '/posts/{mainPostId}/likes', ['LikeController', 'createLike']); //좋아요 생성 30
+    $r->addRoute('DELETE', '/posts/{mainPostId}/likes', ['LikeController', 'deleteLike']); //좋아요 삭제 10
 //    $r->addRoute('GET', '/posts/{mainPostId}/likes', ['LikeController', 'getLikes']); //좋아요 조회 30
-//    $r->addRoute('PUT', '/posts/{mainPostId}/likes', ['LikeController', 'updateLike']); //좋아요 수정 20
+//    $r->addRoute('PUT', '/posts/{mainPostId}/likes/{postLikeId}', ['LikeController', 'updateLike']); //좋아요 수정 20
+    $r->addRoute('POST', '/reply/{replyId}/likes', ['LikeController', 'createReplyLike']); //댓글 좋아요 생성 20
+//    $r->addRoute('PUT', '/reply/{replyId}/likes/{replyLikeId}', ['LikeController', 'updateReplyLike']); //댓글 좋아요 수정 20
+    $r->addRoute('DELETE', '/reply/{replyId}/likes', ['LikeController', 'deleteReplyLike']); //댓글 좋아요 삭제 20
 
     //2순위
 //    $r->addRoute('POST', '/posts/{mainPostId}/share', ['PostController', 'sharePost']); //게시글 공유 60
@@ -145,6 +149,11 @@ switch ($routeInfo[0]) {
                 $handler = $routeInfo[1][1];
                 $vars = $routeInfo[2];
                 require './controllers/ReplyController.php';
+                break;
+            case 'LikeController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/LikeController.php';
                 break;
             /*case 'EventController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
