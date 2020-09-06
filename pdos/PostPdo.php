@@ -25,7 +25,7 @@ function saveFile($files,$data,$i)
                             from
                                 photos
                             where userId=?
-                            order by getAt desc
+                            order by id desc
                             
                             limit 1;";
 
@@ -60,7 +60,7 @@ function saveFile($files,$data,$i)
                             from
                                 videos
                             where userId=?
-                            order by getAt desc
+                            order by id desc
                             
                             limit 1;";
 
@@ -93,7 +93,7 @@ function createMainPost($userId,$isOpen)
 from
 	posts
 where userId=?
-order by getAt desc
+order by id desc
 
 limit 1;";
 
@@ -639,6 +639,7 @@ on users.id = reply.userId
 WHERE posts.id=?
 and reply.status=1
 and reply.isReply=-1
+and users.status=1
 
 order by reply.getAt DESC
 limit 10 offset $offset
@@ -734,6 +735,7 @@ on users.id = reply.userId
 WHERE posts.id=?
 and reply.status=1
 and reply.isReply!=-1
+and users.status=1
 
 order by reply.getAt DESC
 ;";

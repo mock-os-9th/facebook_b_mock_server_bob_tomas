@@ -461,6 +461,7 @@ try {
             echo json_encode($res, JSON_NUMERIC_CHECK);
             addErrorLogs($errorLogs, $res, $req);
             break;
+
     }
 } catch (\Exception $e) {
     return getSQLErrorException($errorLogs, $e, $req);
