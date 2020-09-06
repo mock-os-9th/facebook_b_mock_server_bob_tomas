@@ -352,6 +352,115 @@ try {
             $res->message = "게시글 삭제 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
+
+        case "getPost":
+            http_response_code(200);
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            $mainPostId=$vars["mainPostId"];
+            $offset=$_GET['offset']*10;
+            if(isDeletedPost($mainPostId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 299;
+                $res->message = "삭제된 게시글 입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            $isOpen=getIsOpen($mainPostId);
+            $writer=getWriter($mainPostId);
+            if(isDeletedUser($writer))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 299;
+                $res->message = "삭제된 게시글 입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            if($isOpen==2)
+            {
+                $isOpenChecked=CheckIsOpen2($writer,$data->userId);
+                if($isOpenChecked[0]==0 and $isOpenChecked[1]==0)
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+            if($isOpen==3)
+            {
+
+                if(CheckIsOpen3($mainPostId,$data->userId))
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+            if($isOpen==4)
+            {
+
+                if(!CheckIsOpen4($mainPostId,$data->userId))
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+            if($isOpen==5)
+            {
+                if(!isPostWriter($mainPostId,$data->userId))  //
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+
+            $res->mainPostId=$mainPostId; //메인포스트 인덱스
+//            if($req->sharedPostId!=-1)
+//            {
+//                $sharedPostId=$req->sharedPostId;
+//                $res->share=getSharedPost($sharedPostId); //공유된 게시글 인덱스, 작성자 인덱스, 프로필 사진 링크, 이름, 게시날짜, 내용, 파일 있으면 파일들 postId, 코멘트
+//            }
+            $res->headInfo=getWriterInfo((int)$mainPostId); //프로필 이름, 프로필 사진 링크
+            $res->headInfo=getPostInfo($mainPostId); //게시 날짜, 공개 범위
+            if(hasMainContent($mainPostId))
+            {
+                $res->mainContent=getMainContent($mainPostId); //메인 내용 조회
+            }
+            if(hasFiles($mainPostId))
+            {
+                $res->files=getFiles($mainPostId,$offset); //파일 경로, 내용
+            }
+            $res->userLikeThis=getUserLikeThis($mainPostId,$data->userId); //좋아요 여부
+            $res->shareNum=getShareNum($mainPostId); //공유 개수
+            $res->likeNum=getLikeNum($mainPostId); //좋아요 개수
+            $res->replyNum=getReplyNum($mainPostId); //댓글 수
+            $res->reply = getReply($mainPostId,$offset); //댓글 조회(10개씩 페이징), 대댓글은 (3개 페이징 한번 후 나머지는 전체 출력), 메인 댓글 당 대댓글 수
+            $res->rereply = getReReply($mainPostId); //대댓글 조회
+            $res->isSuccess = true;
+            $res->code = 201;
+            $res->message = "유효하지 않은 토큰입니다";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            addErrorLogs($errorLogs, $res, $req);
+            break;
     }
 } catch (\Exception $e) {
     return getSQLErrorException($errorLogs, $e, $req);
