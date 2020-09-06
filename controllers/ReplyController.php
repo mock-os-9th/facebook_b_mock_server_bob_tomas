@@ -37,7 +37,14 @@ try {
             $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
             $mainPostId=$vars['mainPostId'];
             $file = $_FILES['uploaded_file'];
-
+            if(isDeletedPost($mainPostId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "삭제된 게시글 입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             if(!isset($_POST['replyContent']) && !isset($_FILES['uploaded_file']))
             {
                 $res->isSuccess = false;
@@ -96,6 +103,14 @@ try {
             $mainPostId=$vars['mainPostId'];
             $mainReplyId=$_POST['mainReplyId'];
             $file = $_FILES['uploaded_file'];
+            if(isDeletedPost($mainPostId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "삭제된 게시글 입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             if(!isset($mainReplyId))
             {
                 $res->isSuccess = false;
@@ -206,6 +221,14 @@ try {
             }
             $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
             $postId=$vars['mainPostId'];
+            if(isDeletedPost($postId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "삭제된 게시글 입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             $replyId=$vars['replyId'];
             $changeContent=$req->content;
             if(!isset($postId))
