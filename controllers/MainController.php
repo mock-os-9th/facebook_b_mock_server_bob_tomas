@@ -56,7 +56,7 @@ try {
                 $res->isSuccess = TRUE;
                 $res->code = 100;
                 $res->message = "jwt 데이터 조회";
-                echo json_encode($res, JSON_NUMERIC_CHECK);
+                echo json_encode($res);
                 break;
             }
 

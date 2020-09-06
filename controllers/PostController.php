@@ -1,5 +1,4 @@
 <?php
-/*
 require 'function.php';
 
 const JWT_SECRET_KEY = "TEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEY";
@@ -20,7 +19,11 @@ try {
             header('Content-Type: text/html; charset=UTF-8');
             getLogs("./logs/errors.log");
             break;
-
+        /*
+         * API No. 0
+         * API Name : 테스트 API
+         * 마지막 수정 날짜 : 19.04.29
+         */
         case "createPost":
             $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
             if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
@@ -32,80 +35,434 @@ try {
                 break;
             }
             $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
-            $files = $_FILES['upload'];
-            if(count($files["name"])>80)
+            $files = $_FILES['uploaded_file'];
+            $cnt=0;
+            foreach($files['name'] as $key=>$value)
+            {
+                $cnt=$cnt+1;
+            }
+            if($cnt>80)
             {
                 $res->isSuccess = FALSE;
                 $res->code = 202;
                 $res->message = "파일의 개수는 80개까지";
-                echo json_encode($res, JSON_NUMERIC_CHECK);
+                echo json_encode($res);
                 break;
             }
             http_response_code(200);
-            $mainPostId = createPost($data->userId,$req->isOpen);
-            if(isset($req->chekIn) && is_int($req->chekIn) && $req->chekIn>0)
+            $mainPostId = createMainPost($data->userId,$_POST["isOpen"]);
+            if(isset($_POST["chekIn"]) && is_int($_POST["chekIn"]) && $_POST["chekIn"]>0)
             {
-                putCheckIn($req->checkIn);
+                putCheckIn($_POST["chekIn"],$mainPostId);
             }
-            if(isset($req->emotion) && is_int($req->emotion) && $req->emotion>0)
+            if(isset($_POST["emotion"]) && is_int($_POST["emotion"]) && $_POST["emotion"]>0)
             {
-                putEmotion($req->emotion);
+                putEmotion($_POST["emotion"],$mainPostId);
             }
-            if (isset($req->mainContent))
+            if (isset($_POST["mainContent"]))
             {
-                putMainContent($req->mainContent);
+                putContent($_POST["mainContent"],$mainPostId);
             }
-
-            if(isset($_FILES['upload']) && $_FILES['upload']['name'] != "") {
-
-                for($i=0;$i<count($files["name"]);$i++)
+            $sumSize=0;
+            $maxSize=52428800;
+            $cnt=0;
+            if(isset($files)) {
+                foreach($files['name'] as $key=>$value)
                 {
-                    $saveFilesId=saveFile($files,$data,$req,$i); //파일 저장 아이디
-                    if($saveFilesId[0]==false)
-                    {
+                    $cnt=$cnt+1;
+                }
+                for ($i = 0; $i < $cnt; $i++) {
+                    $ext_str = "pdf,jpg,gif,png,mp4,jpeg";
+                    $ext_str_image = "pdf,jpg,gif,png";
+                    $ext_str_video = "mp4";
+
+                    $allowed_extensions = explode(',', $ext_str);
+
+                    $ext = substr($files['name'][$i], strrpos($files['name'][$i], '.') + 1);
+                    if (!in_array($ext, $allowed_extensions)) {
+
+                        $res->isSuccess = false;
+                        $res->code = 200;
+                        $res->message = "올바르지 않은 확장자";
+                        echo json_encode($res);
+                        break;
+                    }
+
+                }
+                for ($i = 0; $i < $cnt; $i++) {
+
+                    $fileSize = $files['size'][$i];
+                    $sumSize = $sumSize + $fileSize;
+                }
+                if ($sumSize >= $maxSize) {
+                    $res->isSuccess = FALSE;
+                    $res->code = 204;
+                    $res->message = "파일은 500MB 까지 업로드 할 수 있습니다";
+                    echo json_encode($res);
+                    break;
+                }
+
+
+                for ($i = 0; $i < $cnt; $i++) {
+                    $saveFilesId = saveFile($files, $data, $i); //파일 저장 아이디
+                    if ($saveFilesId[0] == false) {
                         $res->isSuccess = $saveFilesId[0];
                         $res->code = $saveFilesId[1];
                         $res->message = $saveFilesId[2];
+                        echo json_encode($res);
                         break;
                     }
-                    $thisPostId=createPostWithFiles($data->userId,$mainPostId);  //현재 포스트 아이디
-                    if($thisPostId[0]==false)
-                    {
+                    $thisPostId = createPostWithFiles($data->userId, $mainPostId);  //현재 포스트 아이디
+                    if ($thisPostId[0] == false) {
                         $res->isSuccess = $thisPostId[0];
                         $res->code = $thisPostId[1];
                         $res->message = $thisPostId[2];
+                        echo json_encode($res);
                         break;
                     }
-                    savePostFiles($thisPostId,$saveFilesId);
+                    if (isset($_POST["photoContent"][$i]))
+                    {
+                        putContent($_POST["photoContent"][$i],$thisPostId);
+                    }
+                    savePostFiles($thisPostId,$saveFilesId,$files,$i);
                 }
             }
-        case "updatePost":
-            http_response_code(200);
-            $res->result = testDetail($vars["testNo"]);
-            $res->isSuccess = TRUE;
+            $res->isSuccess = true;
             $res->code = 100;
-            $res->message = "테스트 성공";
-            echo json_encode($res, JSON_NUMERIC_CHECK);
+            $res->message = "게시글 생성 완료";
+            echo json_encode($res);
             break;
 
         case "updatePostOpen":
             http_response_code(200);
-            $res->result = testPost($req->name);
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            $mainPostId=$vars["mainPostId"];
+
+            if(!isPostWriter($mainPostId,$data->userId))  //
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 210;
+                $res->message = "수정 권한이 없습니다";
+                echo json_encode($res);
+                break;
+            }
+            $isOpen=$req->isOpen;
+            updateIsOpen($isOpen,$mainPostId);
+
             $res->isSuccess = TRUE;
             $res->code = 100;
-            $res->message = "테스트 성공";
+            $res->message = "공개범위 변경 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
+        /*
+         * API No. 0
+         * API Name : 테스트 Body & Insert API
+         * 마지막 수정 날짜 : 19.04.29
+         */
+        case "updatePost":
+
+            http_response_code(200);
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            $mainPostId=$vars["mainPostId"];
+            if(!isPostWriter($mainPostId,$data->userId))  //
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 210;
+                $res->message = "수정 권한이 없습니다";
+                echo json_encode($res);
+                break;
+            }
+            if(isset($_POST["changeFilePostId"]))
+            {
+                $cnt=0;
+                $changeFilePostId=$_POST["changeFilePostId"];
+                $changeFileComment=$_POST["changeFileComment"];
+                foreach($_POST["changeFilePostId"] as $key=>$value)
+                {
+                    $cnt=$cnt+1;
+                }
+                for($i=0;$i<$cnt;$i++)
+                {
+                    updateContent($changeFileComment[$i],$changeFilePostId[$i]);
+                }
+            }
+
+            if(isset($_POST["deleteFileId"]))
+            {
+                $deleteFileId=$_POST["deleteFileId"];
+                $cnt=0;
+                foreach($_POST["deleteFileId"] as $key=>$value)
+                {
+                    $cnt=$cnt+1;
+                }
+                for($i=0;$i<$cnt;$i++)
+                {
+                    deleteFilePost($deleteFileId[$i]);
+                }
+            }
+            if(isset($_POST["isOpen"]) && is_int($_POST["isOpen"]) && $_POST["isOpen"]>0)
+            {
+                updateIsOpen($_POST["isOpen"],$mainPostId);
+            }
+            if(isset($_POST["chekIn"]))
+            {
+                updateCheckIn($_POST["chekIn"],$mainPostId);
+            }
+            if(isset($_POST["emotion"]))
+            {
+                updateEmotion($_POST["emotion"],$mainPostId);
+            }
+            if (isset($_POST["mainContent"]))
+            {
+                updateContent($_POST["mainContent"],$mainPostId);
+            }
+
+            $files = $_FILES['uploaded_file'];
+            $cnt=0;
+            foreach($files['name'] as $key=>$value)
+            {
+                $cnt=$cnt+1;
+            }
+            if($cnt>80)
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 202;
+                $res->message = "파일의 개수는 80개까지";
+                echo json_encode($res);
+                break;
+            }
+            $sumSize=0;
+            $maxSize=52428800;
+            $cnt=0;
+            if(isset($files)) {
+                foreach($files['name'] as $key=>$value)
+                {
+                    $cnt=$cnt+1;
+                }
+                for ($i = 0; $i < $cnt; $i++) {
+                    $ext_str = "pdf,jpg,gif,png,mp4,jpeg";
+                    $ext_str_image = "pdf,jpg,gif,png";
+                    $ext_str_video = "mp4";
+
+                    $allowed_extensions = explode(',', $ext_str);
+
+                    $ext = substr($files['name'][$i], strrpos($files['name'][$i], '.') + 1);
+                    if (!in_array($ext, $allowed_extensions)) {
+
+                        $res->isSuccess = false;
+                        $res->code = 200;
+                        $res->message = "올바르지 않은 확장자";
+                        echo json_encode($res);
+                        break;
+                    }
+
+                }
+
+                for ($i = 0; $i < $cnt; $i++) {
+
+                    $fileSize = $files['size'][$i];
+                    $sumSize = $sumSize + $fileSize;
+                }
+                if ($sumSize >= $maxSize) {
+                    $res->isSuccess = FALSE;
+                    $res->code = 204;
+                    $res->message = "파일은 500MB 까지 업로드 할 수 있습니다";
+                    echo json_encode($res);
+                    break;
+                }
+
+
+                for ($i = 0; $i < $cnt; $i++) {
+                    $saveFilesId = saveFile($files, $data, $i); //파일 저장 아이디
+                    if ($saveFilesId[0] == false) {
+                        $res->isSuccess = $saveFilesId[0];
+                        $res->code = $saveFilesId[1];
+                        $res->message = $saveFilesId[2];
+                        echo json_encode($res);
+                        break;
+                    }
+                    $thisPostId = createPostWithFiles($data->userId, $mainPostId);  //현재 포스트 아이디
+                    if ($thisPostId[0] == false) {
+                        $res->isSuccess = $thisPostId[0];
+                        $res->code = $thisPostId[1];
+                        $res->message = $thisPostId[2];
+                        echo json_encode($res);
+                        break;
+                    }
+                    if (isset($_POST["photoContent"][$i]))
+                    {
+                        putContent($_POST["photoContent"][$i],$thisPostId);
+                    }
+                    savePostFiles($thisPostId,$saveFilesId,$files,$i);
+                }
+            }
+            $res->isSuccess = true;
+            $res->code = 100;
+            $res->message = "게시글 생성 성공";
+            echo json_encode($res);
+            break;
+
 
         case "deletePost":
             http_response_code(200);
-            $res->result = testPost($req->name);
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            $mainPostId=$vars["mainPostId"];
+
+            if(!isPostWriter($mainPostId,$data->userId))  //
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 210;
+                $res->message = "삭제 권한이 없습니다";
+                echo json_encode($res);
+                break;
+            }
+            deletePost($mainPostId);
             $res->isSuccess = TRUE;
             $res->code = 100;
-            $res->message = "테스트 성공";
+            $res->message = "게시글 삭제 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
+        case "getPost":
+            http_response_code(200);
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            $mainPostId=$vars["mainPostId"];
+            $offset=$_GET['offset']*10;
+            if(isDeletedPost($mainPostId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 299;
+                $res->message = "삭제된 게시글 입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            $isOpen=getIsOpen($mainPostId);
+            $writer=getWriter($mainPostId);
+            if(isDeletedUser($writer))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 299;
+                $res->message = "삭제된 게시글 입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            if($isOpen==2)
+            {
+                $isOpenChecked=CheckIsOpen2($writer,$data->userId);
+                if($isOpenChecked[0]==0 and $isOpenChecked[1]==0)
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+            if($isOpen==3)
+            {
+
+                if(CheckIsOpen3($mainPostId,$data->userId))
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+            if($isOpen==4)
+            {
+
+                if(!CheckIsOpen4($mainPostId,$data->userId))
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+            if($isOpen==5)
+            {
+                if(!isPostWriter($mainPostId,$data->userId))  //
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+
+            $res->mainPostId=$mainPostId; //메인포스트 인덱스
+//            if($req->sharedPostId!=-1)
+//            {
+//                $sharedPostId=$req->sharedPostId;
+//                $res->share=getSharedPost($sharedPostId); //공유된 게시글 인덱스, 작성자 인덱스, 프로필 사진 링크, 이름, 게시날짜, 내용, 파일 있으면 파일들 postId, 코멘트
+//            }
+            $res->headInfo=getWriterInfo((int)$mainPostId); //프로필 이름, 프로필 사진 링크
+            $res->headInfo=getPostInfo($mainPostId); //게시 날짜, 공개 범위
+            if(hasMainContent($mainPostId))
+            {
+                $res->mainContent=getMainContent($mainPostId); //메인 내용 조회
+            }
+            if(hasFiles($mainPostId))
+            {
+                $res->files=getFiles($mainPostId,$offset); //파일 경로, 내용
+            }
+            $res->userLikeThis=getUserLikeThis($mainPostId,$data->userId); //좋아요 여부
+            $res->shareNum=getShareNum($mainPostId); //공유 개수
+            $res->likeNum=getLikeNum($mainPostId); //좋아요 개수
+            $res->replyNum=getReplyNum($mainPostId); //댓글 수
+            $res->reply = getReply($mainPostId,$offset); //댓글 조회(10개씩 페이징), 대댓글은 (3개 페이징 한번 후 나머지는 전체 출력), 메인 댓글 당 대댓글 수
+            $res->rereply = getReReply($mainPostId); //대댓글 조회
+            $res->isSuccess = true;
+            $res->code = 201;
+            $res->message = "유효하지 않은 토큰입니다";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            addErrorLogs($errorLogs, $res, $req);
             break;
     }
 } catch (\Exception $e) {
     return getSQLErrorException($errorLogs, $e, $req);
-}*/
+}
+

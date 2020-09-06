@@ -328,14 +328,14 @@ function changePassword($newPassword,$userId)
     $st=null;$pdo = null;
 }
 
-function changeLoginTable($newPassword,$userId)
+function changeLoginTable($newPassword,$sign)
 {
     $pdo = pdoSqlConnect();
-    $query = "update loginTable set password=? where userId=?;";
+    $query = "update loginTable set password=? where sign=?;";
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$newPassword,$userId]);
+    $st->execute([$newPassword,$sign]);
 
     $st=null;$pdo = null;
 }
@@ -352,12 +352,12 @@ function changeJWT($newJwt,$wasJwt,$macAddress)
     $st=null;$pdo = null;
 }
 
-function deleteUser($userId,$jwt)
+function deleteUser($userId,$jwt,$sign)
 {
     $pdo = pdoSqlConnect();
-    $query = "delete from loginTable where userId = ?;";
+    $query = "delete from loginTable where sign = ?;";
     $st = $pdo->prepare($query);
-    $st->execute([$userId]);
+    $st->execute([$sign]);
     $st=null;
     $query = "delete from checkIn where userId = ?;";
     $st = $pdo->prepare($query);
@@ -376,7 +376,7 @@ function deleteUser($userId,$jwt)
     $st = $pdo->prepare($query);
     $st->execute([$userId,$userId]);
     $st=null;
-    $query = "delete from group1 where userId = ?;";
+    $query = "delete from groups1 where userId = ?;";
     $st = $pdo->prepare($query);
     $st->execute([$userId]);
     $st=null;
@@ -473,4 +473,20 @@ function deleteUser($userId,$jwt)
     $st->execute([$userId]);
     $st=null;
     $pdo=null;
+}
+
+function isLoginSign($sign)
+{
+    $pdo = pdoSqlConnect();
+    $query = "SELECT EXISTS(SELECT * FROM loginTable WHERE sign = ?) AS exist;";
+
+    $st = $pdo->prepare($query);
+    //    $st->execute([$param,$param]);
+    $st->execute([$sign]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st=null;$pdo = null;
+
+    return intval($res[0]["exist"]);
 }
