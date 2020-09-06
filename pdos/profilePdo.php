@@ -1,38 +1,70 @@
 <?php
 
 
-function userProfile($userIdx){
+function userProfile($pageUserIdx, $userIdx){
     $pdo = pdoSqlConnect();
     $query = "SELECT CONCAT(firstName, lastName) name,
        IF(isOpenResister=0, '가입날짜 비공개', CONCAT(DATE_FORMAT(U.getAt, '%Y'),'년 ', DATE_FORMAT(U.getAt, '%m'), '월에 가입')) createDate,
        IF(ISNULL(hobby), '등록된 취미 없음', hobby) hobby,
        IF(ISNULL(living)||isOpenLiving=0, '정보없음', living) living,
        IF(ISNULL(U.from)||isOpenFrom=0, '정보없음', U.from) hometown,
-       IF(EXISTS(SELECT *
-                 FROM profileImage P
-                 WHERE U.id = P.userId
-                 LIMIT 1), (select P.image
+       IF(EXISTS(select P.image
+                            from photos P
+                            join profileImage F
+                              ON P.id = F.photoId
+                             AND P.userId = ?
+                            ORDER BY F.getAt DESC
+                            LIMIT 1), (select P.image
                             from photos P
                             join profileImage F
                               ON P.id = F.photoId
                              AND P.userId = ?
                             ORDER BY F.getAt DESC
                             LIMIT 1), '프로필사진없음') profilePhoto,
-       IF(EXISTS(SELECT *
-                 FROM coverImage C
-                 WHERE U.id = C.userId
-                 LIMIT 1), (select P.image
+       IF(EXISTS(select P.image
                             from photos P
                             join coverImage C
                               ON P.id = C.photoId
-                             AND P.userId = ?
+                            WHERE P.userId = ?
                             ORDER BY C.getAt DESC
-                            LIMIT 1), '커버사진없음') coverPhoto
+                            LIMIT 1), (select P.image
+                            from photos P
+                            join coverImage C
+                              ON P.id = C.photoId
+                            WHERE P.userId = ?
+                            ORDER BY C.getAt DESC
+                            LIMIT 1), '커버사진없음') coverPhoto,
+       IF(?=?, 0, IF(EXISTS(SELECT *
+                            FROM friends
+                            WHERE ((user1Id=? AND user2Id=?)
+                               OR (user2Id=? AND user1Id=?))
+                            AND status=1), 1, IF(EXISTS(SELECT *
+                                                FROM friends
+                                                WHERE ((user2Id=? AND status=2)
+                                                   OR (user1Id=? AND status=3))), 3, IF(EXISTS(SELECT *
+FROM friends
+WHERE ((user1Id=? AND status=2)
+   OR (user2Id=? AND status=3))), 4, IF(EXISTS(SELECT *
+FROM friendsRequest
+WHERE user1Id=? AND user2Id = ? AND status=0),5,IF(EXISTS(SELECT *
+FROM friendsRequest
+WHERE user2Id=? AND user1Id = ? AND status=0), 6, IF(EXISTS(SELECT *
+FROM friendsRequest
+WHERE user1Id=? AND user2Id = ? AND status=2), 7, IF(EXISTS(SELECT *
+                                        FROM friendsRequest
+                                        WHERE user2Id=? AND user1Id = ? AND status=2), 8, IF(NOT EXISTS(SELECT *
+FROM friends
+WHERE ((user1Id=? AND user2Id=?)
+   OR (user2Id=? AND user1Id=?))), 2, '예외'))))))))) IsFriend
 FROM users U
 WHERE U.id = ?;";
 
     $st = $pdo->prepare($query);
-    $st->execute([$userIdx, $userIdx, $userIdx]);
+    $st->execute([$pageUserIdx, $pageUserIdx, $pageUserIdx, $pageUserIdx,
+        $userIdx, $pageUserIdx,$userIdx, $pageUserIdx,$userIdx, $pageUserIdx,$userIdx, $userIdx,
+        $userIdx, $userIdx,$userIdx, $pageUserIdx,$userIdx, $pageUserIdx,$userIdx, $pageUserIdx,
+        $userIdx, $pageUserIdx,$userIdx, $pageUserIdx, $userIdx, $pageUserIdx,
+        $pageUserIdx]);
 
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
@@ -43,15 +75,36 @@ WHERE U.id = ?;";
     return $res[0];
 }
 
+function getUserStatus($userIdx){
+    $pdo = pdoSqlConnect();
+    $query = "SELECT status
+                FROM users U
+                WHERE U.id = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0]['status'];
+}
+
 function userProfileFriendsCount($userIdx){
     $pdo = pdoSqlConnect();
-    $query = "SELECT count(*) 'friendsCount'
-                FROM users U
-                JOIN friends F
-                  ON U.id = F.user1Id
-                  OR U.id = F.user2Id
-                 AND F.status = 1
-                WHERE U.id = ?;";
+    $query = "SELECT COUNT(*) friendsCount
+                FROM users U1
+                WHERE U1.id IN (SELECT IF((U2.id=F.user1Id), F.user2Id, F.user1Id)
+                             FROM users U2
+                             JOIN friends F
+                               ON U2.id = F.user1Id
+                               OR U2.id = F.user2Id
+                              AND F.status = 1
+                             WHERE U2.id = ?)
+                AND U1.status = 1";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx]);
@@ -72,7 +125,9 @@ function userProfileFriends($userIdx){
                 LEFT JOIN (select PH.*
                      FROM profileImage P
                       JOIN photos PH
-                      ON PH.id = P.photoId) PRO
+                      ON PH.id = P.photoId
+                      ORDER BY P.getAt DESC
+                      limit 1) PRO
                   ON U1.id = PRO.userId
                 WHERE U1.id IN (SELECT IF((U2.id=F.user1Id), F.user2Id, F.user1Id)
                              FROM users U2
@@ -81,6 +136,7 @@ function userProfileFriends($userIdx){
                                OR U2.id = F.user2Id
                               AND F.status = 1
                              WHERE U2.id = ?)
+                AND U1.status = 1
                 limit 6;";
 
     $st = $pdo->prepare($query);
@@ -155,7 +211,7 @@ WHERE U.id = ?;";
     $st = null;
     $pdo = null;
 
-    return $res;
+    return $res[0];
 }
 
 function modifyIntroduce($contents, $userIdx){
@@ -205,7 +261,8 @@ function getAllFriends($userIdx, $offset){
                 LEFT JOIN (select PH.*
                      FROM profileImage P
                       JOIN photos PH
-                      ON PH.id = P.photoId) PRO
+                      ON PH.id = P.photoId
+                      LIMIT 1) PRO
                   ON U1.id = PRO.userId
                 WHERE U1.id IN (SELECT IF((U2.id=F.user1Id), F.user2Id, F.user1Id)
                              FROM users U2
@@ -214,6 +271,7 @@ function getAllFriends($userIdx, $offset){
                                OR U2.id = F.user2Id
                               AND F.status = 1
                              WHERE U2.id = ?)
+                  AND U1.status = 1
                 limit 50 offset $offset;";
 
     $st = $pdo->prepare($query);
@@ -229,25 +287,28 @@ function getAllFriends($userIdx, $offset){
 }
 
 
-function getAllFriendsCount($userIdx){
+function getSearchedFriend($userIdx, $search){
     $pdo = pdoSqlConnect();
-    $query = "SELECT count(*)
+    $query = "SELECT CONCAT(firstName, lastName) name, U1.id, IF(ISNULL(PRO.image), '프로필없음', PRO.image) profileImage
                 FROM users U1
                 LEFT JOIN (select PH.*
                      FROM profileImage P
                       JOIN photos PH
-                      ON PH.id = P.photoId) PRO
+                      ON PH.id = P.photoId
+                      LIMIT 1) PRO
                   ON U1.id = PRO.userId
                 WHERE U1.id IN (SELECT IF((U2.id=F.user1Id), F.user2Id, F.user1Id)
                              FROM users U2
                              JOIN friends F
                                ON U2.id = F.user1Id
-                OR U2.id = F.user2Id
-                AND F.status = 1
-              WHERE U2.id = ?);";
+                               OR U2.id = F.user2Id
+                              AND F.status = 1
+                             WHERE U2.id = ?)
+                  AND CONCAT(firstName, lastName) LIKE CONCAT('%', ?, '%')
+                  AND U1.status = 1;";
 
     $st = $pdo->prepare($query);
-    $st->execute([$userIdx]);
+    $st->execute([$userIdx, $search]);
 
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
@@ -257,6 +318,7 @@ function getAllFriendsCount($userIdx){
 
     return $res;
 }
+
 
 function getMyDetailWork($userIdx){
     $pdo = pdoSqlConnect();
@@ -305,7 +367,7 @@ function getMyDetailSchool($userIdx){
 
 function getMyDetail($userIdx){
     $pdo = pdoSqlConnect();
-    $query = "SELECT phone, IF(sex=0,'비공개',IF(sex=1, '남자', '여자')) sex, birth, 
+    $query = "SELECT phone, sex, birth, 
        IF(ISNULL(hobby), '등록된 취미 없음', hobby) hobby,
        IF(ISNULL(living), '정보없음', living) living,
        IF(ISNULL(users.from), '정보없음', users.from) hometown,

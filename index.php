@@ -6,6 +6,7 @@ require './pdos/PostPdo.php';
 require './pdos/ReplyPdo.php';
 require './vendor/autoload.php';
 require './pdos/profilePdo.php';
+require './pdos/friendPdo.php';
 
 use \Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
@@ -58,16 +59,31 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/jwt-data', ['MainController', 'data']);
 
 
-    $r->addRoute('GET', '/profile/{userIdx}', ['ProfileController', 'getProfile']);
-    $r->addRoute('GET', '/open-modify-page', ['ProfileController', 'openModifyPage']);
-    $r->addRoute('PATCH', '/introduce-modify', ['ProfileController', 'introduceModify']);
-    $r->addRoute('DELETE', '/introduce-delete', ['ProfileController', 'introduceDelete']);
-    $r->addRoute('PATCH', '/hobby-modify', ['ProfileController', 'modifyHobby']);
+    $r->addRoute('GET', '/profile/{userIdx}', ['ProfileController', 'getProfile']); //프로필 페이지
+    $r->addRoute('GET', '/open-modify-page', ['ProfileController', 'openModifyPage']); //프로필 공개데이터 수정 페이지
+    $r->addRoute('PATCH', '/introduce-modify', ['ProfileController', 'introduceModify']); // 자기소개 수정
+    $r->addRoute('DELETE', '/introduce-delete', ['ProfileController', 'introduceDelete']); // 자기소개 삭제
+    $r->addRoute('PATCH', '/hobby-modify', ['ProfileController', 'modifyHobby']); // 취미 수정
 
-    $r->addRoute('GET', '/all-friend/{userIdx}', ['ProfileController', 'getAllFriends']);
+    $r->addRoute('GET', '/my-detail-page', ['ProfileController', 'getMyDetailPage']); // 내 상세 페이지
 
-    $r->addRoute('POST', '/insert-profile-image', ['ProfileController', 'insertProfileImage']);
-    $r->addRoute('POST', '/insert-cover-image', ['ProfileController', 'insertCoverImage']);
+    $r->addRoute('GET', '/all-friend/{userIdx}', ['ProfileController', 'getAllFriends']); //친구 전체 목록
+    $r->addRoute('GET', '/searched-friend/{userIdx}', ['ProfileController', 'getSearchedFriend']); //친구 검색
+
+    $r->addRoute('POST', '/insert-profile-image', ['ProfileController', 'insertProfileImage']); //프로필 사진 등록
+    $r->addRoute('POST', '/insert-cover-image', ['ProfileController', 'insertCoverImage']); //커버 사진 등록
+
+
+
+
+
+    $r->addRoute('POST', '/request-friend/{reqFriIdx}', ['FriendController', 'requestFriend']);  //친구요청
+    $r->addRoute('GET', '/request-friend-page', ['FriendController', 'requestFriendPage']);    //친구요청확인 페이지
+
+    $r->addRoute('POST', '/response-friend-ok', ['FriendController', 'responseFriendOk']);   //친구 수락
+    $r->addRoute('POST', '/response-friend-no', ['FriendController', 'responseFriendNo']);   //친구 거절(삭제)
+    $r->addRoute('POST', '/request-friend-cancel', ['FriendController', 'requestFriendCancel']);   //친구 요청 취소
+    $r->addRoute('POST', '/friend-cancel/{reqFriIdx}', ['FriendController', 'cancelFriend']);   //친구 취소(삭제)
 
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
@@ -145,6 +161,11 @@ switch ($routeInfo[0]) {
                 $handler = $routeInfo[1][1];
                 $vars = $routeInfo[2];
                 require './controllers/ReplyController.php';
+                break;
+            case 'FriendController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/FriendController.php';
                 break;
             /*case 'EventController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
