@@ -3,6 +3,7 @@ require './pdos/DatabasePdo.php';
 require './pdos/IndexPdo.php';
 require './pdos/UserPdo.php';
 require './pdos/PostPdo.php';
+require './pdos/ReplyPdo.php';
 require './vendor/autoload.php';
 require './pdos/profilePdo.php';
 require './pdos/friendPdo.php';
@@ -33,24 +34,23 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/posts/{mainPostId}', ['PostController', 'updatePost']); //게시글 수정
     $r->addRoute('PUT', '/posts/{mainPostId}/isOpen', ['PostController', 'updatePostOpen']); //게시글 공개범위 수정
     $r->addRoute('DELETE', '/posts/{mainPostId}', ['PostController', 'deletePost']); //게시글 삭제
-
     $r->addRoute('GET', '/posts/{mainPostId}', ['PostController', 'getPost']); //게시글 조회
 
-//    $r->addRoute('POST', '/posts/{mainPostId}/reply', ['ReplyController', 'createReply']); //댓글 생성
-//    $r->addRoute('POST', '/posts/{mainPostId}/reply-child', ['ReplyController', 'createReReply']); //대댓글 생성
-//    $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'deleteReply']); //댓글 삭제
-//    $r->addRoute('PUT', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'updateReply']); //댓글 수정(텍스트만 가능)
-//
-//    $r->addRoute('POST', '/posts/{mainPostId}/likes', ['LikeController', 'createLike']); //좋아요 생성
-//    $r->addRoute('DELETE', '/posts/{mainPostId}/likes}', ['LikeController', 'deleteLike']); //좋아요 삭제
-//    $r->addRoute('GET', '/posts/{mainPostId}/likes', ['LikeController', 'getLikes']); //좋아요 조회
-//    $r->addRoute('PUT', '/posts/{mainPostId}/likes', ['LikeController', 'updateLike']); //좋아요 수정
+    $r->addRoute('POST', '/posts/{mainPostId}/reply', ['ReplyController', 'createReply']); //댓글 생성 30
+    $r->addRoute('POST', '/posts/{mainPostId}/reply-child', ['ReplyController', 'createReReply']); //대댓글 생성 20
+    $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'deleteReply']); //댓글 삭제 10
+    $r->addRoute('PUT', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'updateReply']); //댓글 수정(텍스트만 가능) 20
+
+//    $r->addRoute('POST', '/posts/{mainPostId}/likes', ['LikeController', 'createLike']); //좋아요 생성 30
+//    $r->addRoute('DELETE', '/posts/{mainPostId}/likes}', ['LikeController', 'deleteLike']); //좋아요 삭제 10
+//    $r->addRoute('GET', '/posts/{mainPostId}/likes', ['LikeController', 'getLikes']); //좋아요 조회 30
+//    $r->addRoute('PUT', '/posts/{mainPostId}/likes', ['LikeController', 'updateLike']); //좋아요 수정 20
 
     //2순위
-//    $r->addRoute('POST', '/posts/{mainPostId}/share', ['PostController', 'sharePost']); //게시글 공유
-//    $r->addRoute('POST', '/posts/{mainPostId}/save', ['PostController', 'savePost']); //게시글 저장
-//    $r->addRoute('GET', '/saves', ['PostController', 'getSavedPost']); //저장한 게시물 조회
-//    $r->addRoute('GET', '/posts/{mainPostId}/is-open', ['PostController', 'getIsOpenPost']); //게시글 공개범위 조회
+//    $r->addRoute('POST', '/posts/{mainPostId}/share', ['PostController', 'sharePost']); //게시글 공유 60
+//    $r->addRoute('POST', '/posts/{mainPostId}/save', ['PostController', 'savePost']); //게시글 저장 30
+//    $r->addRoute('GET', '/saves', ['PostController', 'getSavedPost']); //저장한 게시물 조회 60
+//    $r->addRoute('GET', '/posts/{mainPostId}/is-open', ['PostController', 'getIsOpenPost']); //게시글 공개범위 조회 30
 
 //    $r->addRoute('POST', '/posts/{mainPostId}', ['PostController', 'updatePost']); //게시글 수정(공개 범위 : 함수 구현 필요)
 //    $r->addRoute('PUT', '/posts/{mainPostId}/isOpen', ['PostController', 'updatePostOpen']); //게시글 공개범위 수정(공개 범위 : 함수 구현 필요)
@@ -156,6 +156,11 @@ switch ($routeInfo[0]) {
                 $handler = $routeInfo[1][1];
                 $vars = $routeInfo[2];
                 require './controllers/ProfileController.php';
+                break;
+            case 'ReplyController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/ReplyController.php';
                 break;
             case 'FriendController':
                 $handler = $routeInfo[1][1];
