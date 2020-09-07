@@ -231,7 +231,6 @@ try {
 
             if($_GET['offset']==0){
                 $toReadPostId = getRecentPostId();
-                echo $toReadPostId;
             }else {
                 $toReadPostId = $_GET['offset'];
             }

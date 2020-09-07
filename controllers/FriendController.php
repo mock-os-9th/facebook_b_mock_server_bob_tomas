@@ -151,6 +151,15 @@ try {
                 addErrorLogs($errorLogs, $res, $req);
                 break;
             }
+            if(!isExistRequest($req->requestId)){
+                $res->isSuccess = FALSE;
+                $res->code = 200;
+                $res->message = "존재하지 않는 친구요청.";
+
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
             http_response_code(200);
             updateRequestStatus(1,$req->requestId);
             setFriend($req->requestUserId, $data->userId);
@@ -178,6 +187,15 @@ try {
                 addErrorLogs($errorLogs, $res, $req);
                 break;
             }
+            if(!isExistRequest($req->requestId)){
+                $res->isSuccess = FALSE;
+                $res->code = 200;
+                $res->message = "존재하지 않는 친구요청.";
+
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
             http_response_code(200);
             updateRequestStatus(2, $req->requestId);
             $res->isSuccess = TRUE;
@@ -205,6 +223,23 @@ try {
                 break;
             }
             http_response_code(200);
+            if(!isExistRequest($req->requestId)){
+                $res->isSuccess = FALSE;
+                $res->code = 200;
+                $res->message = "존재하지 않는 친구요청.";
+
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(getReqStatus($req->requestId)!=0){
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "요청중인 요청만 취소 가능.";
+
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             updateRequestStatus(-1, $req->requestId);
             $res->isSuccess = TRUE;
             $res->code = 100;

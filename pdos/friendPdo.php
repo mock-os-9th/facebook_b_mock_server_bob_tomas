@@ -307,3 +307,39 @@ function isValidUserid($id){
 
     return $res[0]['exist'];
 }
+
+function isExistRequest($id){
+    $pdo = pdoSqlConnect();
+    $query = "select EXISTS(select *
+                            from friendsRequest
+                            where id = ?) exist";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$id]);
+
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0]['exist'];
+}
+
+function getReqStatus($id){
+    $pdo = pdoSqlConnect();
+    $query = "select status
+                            from friendsRequest
+                            where id = ?";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$id]);
+
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0]['status'];
+}
