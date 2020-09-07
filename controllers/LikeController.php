@@ -83,6 +83,14 @@ try {
             }
             $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
             $mainPostId=$vars['mainPostId'];
+            if(!isPostLikeUser($mainPostId,$data->userId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 204;
+                $res->message = "권한이 없습니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             if(isDeletedLike($mainPostId,$data->userId))
             {
                 $res->isSuccess = FALSE;
@@ -119,6 +127,15 @@ try {
                 break;
             }
             $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            $mainPostId=$vars['mainPostId'];
+            if(isDeletedPost($mainPostId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "삭제된 게시글 입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             $mainReplyId=$vars['replyId'];
             if(isDeletedReplyLike($mainReplyId,$data->userId))
             {
@@ -165,7 +182,24 @@ try {
                 break;
             }
             $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            $mainPostId=$vars['mainPostId'];
+            if(isDeletedPost($mainPostId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "삭제된 게시글 입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             $mainReplyId=$vars['replyId'];
+            if(!isReplyLikeUser($mainReplyId,$data->userId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 204;
+                $res->message = "권한이 없습니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             if(isDeletedReplyLike($mainReplyId,$data->userId))
             {
                 $res->isSuccess = FALSE;
@@ -178,18 +212,98 @@ try {
             {
                 $res->isSuccess = FALSE;
                 $res->code = 201;
-                $res->message = "삭제된 게시글 입니다";
+                $res->message = "삭제된 댓글 입니다";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
 
-            deleteLike($mainPostId,$data->userId);
+            deleteReplyLike($mainReplyId,$data->userId);
 
             $res->isSuccess = true;
             $res->code = 100;
             $res->message = "댓글 좋아요 삭제 완료";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
+
+        case "updateLike":
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            $mainPostId=$vars['mainPostId'];
+            if(!isPostLikeUser($mainPostId,$data->userId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 204;
+                $res->message = "권한이 없습니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            if(isDeletedPost($mainPostId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "삭제된 게시글 입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            $kindOf = $req->kindOf;
+
+            updateLike($mainPostId,$data->userId,$kindOf);
+
+            $res->isSuccess = true;
+            $res->code = 100;
+            $res->message = "좋아요 수정 완료";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
+        case "getLikes":
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            $mainPostId=$vars['mainPostId'];
+            if(isDeletedPost($mainPostId)) {
+                $res->isSuccess = FALSE;
+                $res->code = 200;
+                $res->message = "삭제된 게시글 입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            $kindOf=$_GET['kindOf'];
+
+            if(!is_numeric($kindOf))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 202;
+                $res->message = "kindOf 값이 잘못 되었습니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            $offset=explode(',',$_GET['offset']);
+            $res->totalLike=getTotalLike($mainPostId);
+            $res->totalLikeNum=getTotalLikeNum($mainPostId);
+            $res->likeKindOf=getLikeKindOf($mainPostId,$kindOf,$offset[$kindOf]);
+            $res->likeKindOfNum=getLikeKindOfNum($mainPostId,$kindOf);
+
+            $res->isSuccess = true;
+            $res->code = 100;
+            $res->message = "좋아요 수정 완료";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
     }
 } catch (\Exception $e) {
     return getSQLErrorException($errorLogs, $e, $req);
