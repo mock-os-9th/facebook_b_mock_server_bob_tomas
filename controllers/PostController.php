@@ -51,11 +51,11 @@ try {
             }
             http_response_code(200);
             $mainPostId = createMainPost($data->userId,$_POST["isOpen"]);
-            if(isset($_POST["chekIn"]) && is_int($_POST["chekIn"]) && $_POST["chekIn"]>0)
+            if(isset($_POST["checkIn"]))
             {
-                putCheckIn($_POST["chekIn"],$mainPostId);
+                putCheckIn($_POST["checkIn"],$mainPostId);
             }
-            if(isset($_POST["emotion"]) && is_int($_POST["emotion"]) && $_POST["emotion"]>0)
+            if(isset($_POST["emotion"]))
             {
                 putEmotion($_POST["emotion"],$mainPostId);
             }
@@ -224,9 +224,9 @@ try {
             {
                 updateIsOpen($_POST["isOpen"],$mainPostId);
             }
-            if(isset($_POST["chekIn"]))
+            if(isset($_POST["checkIn"]))
             {
-                updateCheckIn($_POST["chekIn"],$mainPostId);
+                updateCheckIn($_POST["checkIn"],$mainPostId);
             }
             if(isset($_POST["emotion"]))
             {
@@ -318,7 +318,7 @@ try {
             }
             $res->isSuccess = true;
             $res->code = 100;
-            $res->message = "게시글 생성 성공";
+            $res->message = "게시글 수정 성공";
             echo json_encode($res);
             break;
 
@@ -456,8 +456,8 @@ try {
             $res->reply = getReply($mainPostId,$offset); //댓글 조회(10개씩 페이징), 대댓글은 (3개 페이징 한번 후 나머지는 전체 출력), 메인 댓글 당 대댓글 수
             $res->rereply = getReReply($mainPostId); //대댓글 조회
             $res->isSuccess = true;
-            $res->code = 201;
-            $res->message = "유효하지 않은 토큰입니다";
+            $res->code = 100;
+            $res->message = "게시물 조회 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             addErrorLogs($errorLogs, $res, $req);
             break;

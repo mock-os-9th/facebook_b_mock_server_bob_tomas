@@ -345,7 +345,7 @@ function CheckIsOpen3($mainPostId,$userId)
     return $res[0]["exist"];
 }
 
-function CheckIsOpen4($mainPostId,$userId,$isOpen)
+function CheckIsOpen4($mainPostId,$userId)
 {
     $pdo = pdoSqlConnect();
     $query = "select exists(select * from postShowed where postId=? and userId=?) as exist;";
@@ -637,6 +637,7 @@ join users
 on users.id = reply.userId
 
 WHERE posts.id=?
+and reply.postId=?
 and reply.status=1
 and reply.isReply=-1
 and users.status=1
@@ -647,7 +648,7 @@ limit 10 offset $offset
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$mainPostId]);
+    $st->execute([$mainPostId,$mainPostId]);
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
 
@@ -733,6 +734,7 @@ join users
 on users.id = reply.userId
 
 WHERE posts.id=?
+and reply.postId=?
 and reply.status=1
 and reply.isReply!=-1
 and users.status=1
@@ -742,7 +744,7 @@ order by reply.getAt DESC
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$mainPostId]);
+    $st->execute([$mainPostId,$mainPostId]);
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
 
