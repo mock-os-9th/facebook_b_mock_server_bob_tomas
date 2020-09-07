@@ -7,11 +7,8 @@ require './pdos/ReplyPdo.php';
 require './pdos/LikePdo.php';
 require './vendor/autoload.php';
 require './pdos/profilePdo.php';
-<<<<<<< HEAD
 require './pdos/friendPdo.php';
 require './pdos/feedPdo.php';
-=======
->>>>>>> 5fa503f1980b0b522e71d46a4f0c798eed09249a
 
 use \Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
@@ -74,7 +71,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     $r->addRoute('GET', '/all-friend/{userIdx}', ['ProfileController', 'getAllFriends']);
 
-<<<<<<< HEAD
+
     $r->addRoute('POST', '/request-friend/{reqFriIdx}', ['FriendController', 'requestFriend']);  //친구요청
     $r->addRoute('GET', '/request-friend-page', ['FriendController', 'requestFriendPage']);    //친구요청확인 페이지
 
@@ -82,10 +79,9 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/response-friend-no', ['FriendController', 'responseFriendNo']);   //친구 거절(삭제)
     $r->addRoute('POST', '/request-friend-cancel', ['FriendController', 'requestFriendCancel']);   //친구 요청 취소
     $r->addRoute('POST', '/friend-cancel/{reqFriIdx}', ['FriendController', 'cancelFriend']);   //친구 취소(삭제)
-=======
+
     $r->addRoute('POST', '/insert-profile-image', ['ProfileController', 'insertProfileImage']);
     $r->addRoute('POST', '/insert-cover-image', ['ProfileController', 'insertCoverImage']);
->>>>>>> 5fa503f1980b0b522e71d46a4f0c798eed09249a
 
 
     $r->addRoute('GET', '/', ['FeedController', 'mainFeed']);   //피드 조회
