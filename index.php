@@ -3,10 +3,15 @@ require './pdos/DatabasePdo.php';
 require './pdos/IndexPdo.php';
 require './pdos/UserPdo.php';
 require './pdos/PostPdo.php';
+require './pdos/ReplyPdo.php';
+require './pdos/LikePdo.php';
 require './vendor/autoload.php';
 require './pdos/profilePdo.php';
+<<<<<<< HEAD
 require './pdos/friendPdo.php';
 require './pdos/feedPdo.php';
+=======
+>>>>>>> 5fa503f1980b0b522e71d46a4f0c798eed09249a
 
 use \Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
@@ -34,24 +39,25 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/posts/{mainPostId}', ['PostController', 'updatePost']); //게시글 수정
     $r->addRoute('PUT', '/posts/{mainPostId}/isOpen', ['PostController', 'updatePostOpen']); //게시글 공개범위 수정
     $r->addRoute('DELETE', '/posts/{mainPostId}', ['PostController', 'deletePost']); //게시글 삭제
-
     $r->addRoute('GET', '/posts/{mainPostId}', ['PostController', 'getPost']); //게시글 조회
 
-//    $r->addRoute('POST', '/posts/{mainPostId}/reply', ['ReplyController', 'createReply']); //댓글 생성
-//    $r->addRoute('POST', '/posts/{mainPostId}/reply-child', ['ReplyController', 'createReReply']); //대댓글 생성
-//    $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'deleteReply']); //댓글 삭제
-//    $r->addRoute('PUT', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'updateReply']); //댓글 수정(텍스트만 가능)
-//
-//    $r->addRoute('POST', '/posts/{mainPostId}/likes', ['LikeController', 'createLike']); //좋아요 생성
-//    $r->addRoute('DELETE', '/posts/{mainPostId}/likes}', ['LikeController', 'deleteLike']); //좋아요 삭제
-//    $r->addRoute('GET', '/posts/{mainPostId}/likes', ['LikeController', 'getLikes']); //좋아요 조회
-//    $r->addRoute('PUT', '/posts/{mainPostId}/likes', ['LikeController', 'updateLike']); //좋아요 수정
+    $r->addRoute('POST', '/posts/{mainPostId}/reply', ['ReplyController', 'createReply']); //댓글 생성 30
+    $r->addRoute('POST', '/posts/{mainPostId}/reply-child', ['ReplyController', 'createReReply']); //대댓글 생성 20
+    $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'deleteReply']); //댓글 삭제 10
+    $r->addRoute('PUT', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'updateReply']); //댓글 수정(텍스트만 가능) 20
+
+    $r->addRoute('POST', '/posts/{mainPostId}/likes', ['LikeController', 'createLike']); //좋아요 생성 30
+    $r->addRoute('DELETE', '/posts/{mainPostId}/likes', ['LikeController', 'deleteLike']); //좋아요 삭제 10
+    $r->addRoute('GET', '/posts/{mainPostId}/likes', ['LikeController', 'getLikes']); //좋아요 조회 30
+    $r->addRoute('PUT', '/posts/{mainPostId}/likes', ['LikeController', 'updateLike']); //좋아요 수정 20
+    $r->addRoute('POST', '/posts/{mainPostId}/reply/{replyId}/likes', ['LikeController', 'createReplyLike']); //댓글 좋아요 생성 20
+    $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}/likes', ['LikeController', 'deleteReplyLike']); //댓글 좋아요 삭제 20
 
     //2순위
-//    $r->addRoute('POST', '/posts/{mainPostId}/share', ['PostController', 'sharePost']); //게시글 공유
-//    $r->addRoute('POST', '/posts/{mainPostId}/save', ['PostController', 'savePost']); //게시글 저장
-//    $r->addRoute('GET', '/saves', ['PostController', 'getSavedPost']); //저장한 게시물 조회
-//    $r->addRoute('GET', '/posts/{mainPostId}/is-open', ['PostController', 'getIsOpenPost']); //게시글 공개범위 조회
+//    $r->addRoute('POST', '/posts/{mainPostId}/share', ['PostController', 'sharePost']); //게시글 공유 60
+//    $r->addRoute('POST', '/posts/{mainPostId}/save', ['PostController', 'savePost']); //게시글 저장 30
+//    $r->addRoute('GET', '/saves', ['PostController', 'getSavedPost']); //저장한 게시물 조회 60
+//    $r->addRoute('GET', '/posts/{mainPostId}/is-open', ['PostController', 'getIsOpenPost']); //게시글 공개범위 조회 30
 
 //    $r->addRoute('POST', '/posts/{mainPostId}', ['PostController', 'updatePost']); //게시글 수정(공개 범위 : 함수 구현 필요)
 //    $r->addRoute('PUT', '/posts/{mainPostId}/isOpen', ['PostController', 'updatePostOpen']); //게시글 공개범위 수정(공개 범위 : 함수 구현 필요)
@@ -60,22 +66,15 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/jwt-data', ['MainController', 'data']);
 
 
-    $r->addRoute('GET', '/profile/{userIdx}', ['ProfileController', 'getProfile']); //프로필 페이지
-    $r->addRoute('GET', '/open-modify-page', ['ProfileController', 'openModifyPage']); //프로필 공개데이터 수정 페이지
-    $r->addRoute('PATCH', '/introduce-modify', ['ProfileController', 'introduceModify']); // 자기소개 수정
-    $r->addRoute('DELETE', '/introduce-delete', ['ProfileController', 'introduceDelete']); // 자기소개 삭제
-    $r->addRoute('PATCH', '/hobby-modify', ['ProfileController', 'modifyHobby']); // 취미 수정
+    $r->addRoute('GET', '/profile/{userIdx}', ['ProfileController', 'getProfile']);
+    $r->addRoute('GET', '/open-modify-page', ['ProfileController', 'openModifyPage']);
+    $r->addRoute('PATCH', '/introduce-modify', ['ProfileController', 'introduceModify']);
+    $r->addRoute('DELETE', '/introduce-delete', ['ProfileController', 'introduceDelete']);
+    $r->addRoute('PATCH', '/hobby-modify', ['ProfileController', 'modifyHobby']);
 
-    $r->addRoute('GET', '/my-detail-page', ['ProfileController', 'getMyDetailPage']); // 내 상세 페이지
+    $r->addRoute('GET', '/all-friend/{userIdx}', ['ProfileController', 'getAllFriends']);
 
-    $r->addRoute('GET', '/all-friend/{userIdx}', ['ProfileController', 'getAllFriends']); //친구 전체 목록
-    $r->addRoute('GET', '/searched-friend/{userIdx}', ['ProfileController', 'getSearchedFriend']); //친구 검색
-
-    $r->addRoute('POST', '/insert-profile-image', ['ProfileController', 'insertProfileImage']); //프로필 사진 등록
-    $r->addRoute('POST', '/insert-cover-image', ['ProfileController', 'insertCoverImage']); //커버 사진 등록
-
-
-
+<<<<<<< HEAD
     $r->addRoute('POST', '/request-friend/{reqFriIdx}', ['FriendController', 'requestFriend']);  //친구요청
     $r->addRoute('GET', '/request-friend-page', ['FriendController', 'requestFriendPage']);    //친구요청확인 페이지
 
@@ -83,6 +82,10 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/response-friend-no', ['FriendController', 'responseFriendNo']);   //친구 거절(삭제)
     $r->addRoute('POST', '/request-friend-cancel', ['FriendController', 'requestFriendCancel']);   //친구 요청 취소
     $r->addRoute('POST', '/friend-cancel/{reqFriIdx}', ['FriendController', 'cancelFriend']);   //친구 취소(삭제)
+=======
+    $r->addRoute('POST', '/insert-profile-image', ['ProfileController', 'insertProfileImage']);
+    $r->addRoute('POST', '/insert-cover-image', ['ProfileController', 'insertCoverImage']);
+>>>>>>> 5fa503f1980b0b522e71d46a4f0c798eed09249a
 
 
     $r->addRoute('GET', '/', ['FeedController', 'mainFeed']);   //피드 조회
@@ -160,10 +163,15 @@ switch ($routeInfo[0]) {
                 $vars = $routeInfo[2];
                 require './controllers/ProfileController.php';
                 break;
-            case 'FriendController':
+            case 'ReplyController':
                 $handler = $routeInfo[1][1];
                 $vars = $routeInfo[2];
-                require './controllers/FriendController.php';
+                require './controllers/ReplyController.php';
+                break;
+            case 'LikeController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/LikeController.php';
                 break;
             case 'FeedController':
                 $handler = $routeInfo[1][1];
