@@ -80,13 +80,13 @@ function isDuplicatedReplyLike($mainReplyId,$userId)
 }
 
 
-function recreateReplyLike($mainReplyId,$userId)
+function recreateReplyLike($mainReplyId,$userId,$likeKind)
 {
     $pdo = pdoSqlConnect();
-    $query = "update replyLike set status=1, updateAt=current_timestamp where userId=? and replyId=?; ";
+    $query = "update replyLike set status=1, kindOf=?,updateAt=current_timestamp where userId=? and replyId=?; ";
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$userId,$mainReplyId]);
+    $st->execute([$likeKind,$userId,$mainReplyId]);
     $st=null;
     $pdo = null;
 }
@@ -121,14 +121,14 @@ function isDeletedReply($mainReplyId)
     return $res[0]["exist"];
 }
 
-function createReplyLike($mainReplyId,$userId)
+function createReplyLike($mainReplyId,$userId,$likeKind)
 {
     $pdo = pdoSqlConnect();
-    $query = "insert into replyLike (replyId, userId) value (?,?);";
+    $query = "insert into replyLike (replyId, userId,kindOf) value (?,?,?);";
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$mainReplyId,$userId]);
+    $st->execute([$mainReplyId,$userId,$likeKind]);
 
     $st=null;
     $pdo = null;
