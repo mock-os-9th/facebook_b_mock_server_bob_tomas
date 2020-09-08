@@ -51,6 +51,19 @@ try {
             }
             http_response_code(200);
             $mainPostId = createMainPost($data->userId,$_POST["isOpen"]);
+            $isOpen=$_POST["isOpen"];
+            $bannedUser=(int)array();
+            $showedUser=(int)array();
+            if(isset($_POST["bannedUser"]))
+            {
+                $bannedUser=$_POST["bannedUser"];
+            }
+            if(isset($_POST["showedUser"]))
+            {
+                $showedUser=$_POST["showedUser"];
+            }
+            updateIsOpen($isOpen,$mainPostId,$bannedUser,$showedUser);
+
             if(isset($_POST["checkIn"]))
             {
                 putCheckIn($_POST["checkIn"],$mainPostId);
@@ -157,7 +170,17 @@ try {
                 break;
             }
             $isOpen=$req->isOpen;
-            updateIsOpen($isOpen,$mainPostId);
+            $bannedUser=(int)array();
+            $showedUser=(int)array();
+            if(isset($req->bannedUser))
+            {
+                $bannedUser=$req->bannedUser;
+            }
+            if(isset($req->showedUser))
+            {
+                $showedUser=$req->showedUser;
+            }
+            updateIsOpen($isOpen,$mainPostId,$bannedUser,$showedUser);
 
             $res->isSuccess = TRUE;
             $res->code = 100;
@@ -220,9 +243,20 @@ try {
                     deleteFilePost($deleteFileId[$i]);
                 }
             }
-            if(isset($_POST["isOpen"]) && is_int($_POST["isOpen"]) && $_POST["isOpen"]>0)
+            if(isset($_POST["isOpen"]))
             {
-                updateIsOpen($_POST["isOpen"],$mainPostId);
+                $isOpen=$_POST["isOpen"];
+                $bannedUser=(int)array();
+                $showedUser=(int)array();
+                if(isset($_POST["bannedUser"]))
+                {
+                    $bannedUser=$_POST["bannedUser"];
+                }
+                if(isset($_POST["showedUser"]))
+                {
+                    $showedUser=$_POST["showedUser"];
+                }
+                updateIsOpen($isOpen,$mainPostId,$bannedUser,$showedUser);
             }
             if(isset($_POST["checkIn"]))
             {
