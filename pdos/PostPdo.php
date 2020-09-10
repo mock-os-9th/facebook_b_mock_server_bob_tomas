@@ -284,18 +284,177 @@ function updateEmotion($emotion,$mainPostId)
 
     $st=null;$pdo = null;
 }
-function updateIsOpen($isOpen,$mainPostId)
+function updateIsOpen($isOpen,$mainPostId,$bannedUser,$showedUser)
 {
-    $pdo = pdoSqlConnect();
-    $query = "update posts set isOpen=?,updateAt=current_timestamp  where id=? or child=?;";
+    if($isOpen==1)
+    {
+        $pdo = pdoSqlConnect();
+        $query = "update posts set isOpen=?,updateAt=current_timestamp  where id=? or child=?;";
 
-    $st = $pdo->prepare($query);
-    //    $st->execute([$param,$param]);
-    $st->execute([$isOpen,$mainPostId,$mainPostId]);
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$isOpen,$mainPostId,$mainPostId]);
 //    $st->setFetchMode(PDO::FETCH_ASSOC);
 //    $res = $st->fetchAll();
 
-    $st=null;$pdo = null;
+        $st=null;
+
+        $query = "update postShowed set status=2,updateAt=current_timestamp  where postId=? ;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;
+
+        $query = "update postBanned set status=2,updateAt=current_timestamp  where postId=? ;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;
+        $pdo = null;
+    }
+    else if($isOpen==2)
+    {
+        $pdo = pdoSqlConnect();
+        $query = "update posts set isOpen=?,updateAt=current_timestamp  where id=? or child=?;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$isOpen,$mainPostId,$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;
+        $query = "update postShowed set status=2,updateAt=current_timestamp  where postId=? ;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;
+
+        $query = "update postBanned set status=2,updateAt=current_timestamp  where postId=? ;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;
+        $pdo = null;
+
+    }
+    else if($isOpen==3)
+    {
+        $pdo = pdoSqlConnect();
+        $query = "update posts set isOpen=?,updateAt=current_timestamp  where id=? or child=?;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$isOpen,$mainPostId,$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;
+        $query = "update postBanned set status=2,updateAt=current_timestamp  where postId=? ;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;
+        for($i=0;$i<count($bannedUser);$i++)
+        {
+            $query = "insert into postBanned (postId,userId) value(?,?);";
+
+            $st = $pdo->prepare($query);
+            //    $st->execute([$param,$param]);
+            $st->execute([$mainPostId,$bannedUser[$i]]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+            $st=null;
+        }
+
+        $query = "update postShowed set status=2,updateAt=current_timestamp  where postId=? ;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;
+        $pdo = null;
+    }
+    else if((int)$isOpen==4)
+    {
+        $pdo = pdoSqlConnect();
+        $query = "update posts set isOpen=?,updateAt=current_timestamp  where id=? or child=?;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$isOpen,$mainPostId,$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;
+
+        $query = "update postShowed set status=2,updateAt=current_timestamp  where postId=? ;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;
+        for($i=0; $i<count($showedUser); $i++)
+        {
+            $query = "insert into postShowed (postId,userId) value(?,?);";
+
+            $st = $pdo->prepare($query);
+            //    $st->execute([$param,$param]);
+            $st->execute([$mainPostId,$showedUser[$i]]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+            $st=null;
+        }
+
+        $query = "update postBanned set status=2,updateAt=current_timestamp  where postId=? ;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;
+        $pdo = null;
+    }else{
+        $pdo = pdoSqlConnect();
+        $query = "update posts set isOpen=5,updateAt=current_timestamp  where id=? or child=?;";
+
+        $st = $pdo->prepare($query);
+        //    $st->execute([$param,$param]);
+        $st->execute([$mainPostId,$mainPostId]);
+//    $st->setFetchMode(PDO::FETCH_ASSOC);
+//    $res = $st->fetchAll();
+
+        $st=null;$pdo = null;
+    }
 }
 
 function deletePost($mainPostId)
@@ -345,7 +504,7 @@ function CheckIsOpen3($mainPostId,$userId)
     return $res[0]["exist"];
 }
 
-function CheckIsOpen4($mainPostId,$userId,$isOpen)
+function CheckIsOpen4($mainPostId,$userId)
 {
     $pdo = pdoSqlConnect();
     $query = "select exists(select * from postShowed where postId=? and userId=?) as exist;";
@@ -637,6 +796,7 @@ join users
 on users.id = reply.userId
 
 WHERE posts.id=?
+and reply.postId=?
 and reply.status=1
 and reply.isReply=-1
 and users.status=1
@@ -647,7 +807,7 @@ limit 10 offset $offset
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$mainPostId]);
+    $st->execute([$mainPostId,$mainPostId]);
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
 
@@ -733,6 +893,7 @@ join users
 on users.id = reply.userId
 
 WHERE posts.id=?
+and reply.postId=?
 and reply.status=1
 and reply.isReply!=-1
 and users.status=1
@@ -742,7 +903,7 @@ order by reply.getAt DESC
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([$mainPostId]);
+    $st->execute([$mainPostId,$mainPostId]);
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
 

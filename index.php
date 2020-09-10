@@ -36,7 +36,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     $r->addRoute('POST', '/posts', ['PostController', 'createPost']); //게시글 생성
     $r->addRoute('POST', '/posts/{mainPostId}', ['PostController', 'updatePost']); //게시글 수정
-    $r->addRoute('PUT', '/posts/{mainPostId}/isOpen', ['PostController', 'updatePostOpen']); //게시글 공개범위 수정
+    $r->addRoute('PUT', '/posts/{mainPostId}/is-open', ['PostController', 'updatePostOpen']); //게시글 공개범위 수정
     $r->addRoute('DELETE', '/posts/{mainPostId}', ['PostController', 'deletePost']); //게시글 삭제
     $r->addRoute('GET', '/posts/{mainPostId}', ['PostController', 'getPost']); //게시글 조회
 
@@ -44,6 +44,16 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/posts/{mainPostId}/reply-child', ['ReplyController', 'createReReply']); //대댓글 생성 20
     $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'deleteReply']); //댓글 삭제 10
     $r->addRoute('PUT', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'updateReply']); //댓글 수정(텍스트만 가능) 20
+<<<<<<< HEAD
+//
+//    $r->addRoute('POST', '/posts/{mainPostId}/likes', ['LikeController', 'createLike']); //좋아요 생성 30
+//    $r->addRoute('DELETE', '/posts/{mainPostId}/likes', ['LikeController', 'deleteLike']); //좋아요 삭제 10
+//    $r->addRoute('GET', '/posts/{mainPostId}/likes', ['LikeController', 'getLikes']); //좋아요 조회 30
+//    $r->addRoute('PUT', '/posts/{mainPostId}/likes/{postLikeId}', ['LikeController', 'updateLike']); //좋아요 수정 20
+//    $r->addRoute('POST', '/reply/{replyId}/likes', ['LikeController', 'createReplyLike']); //댓글 좋아요 생성 20
+//    $r->addRoute('PUT', '/reply/{replyId}/likes/{replyLikeId}', ['LikeController', 'updateReplyLike']); //댓글 좋아요 수정 20
+//    $r->addRoute('DELETE', '/reply/{replyId}/likes', ['LikeController', 'deleteReplyLike']); //댓글 좋아요 삭제 20
+=======
 
     $r->addRoute('POST', '/posts/{mainPostId}/likes', ['LikeController', 'createLike']); //좋아요 생성 30
     $r->addRoute('DELETE', '/posts/{mainPostId}/likes', ['LikeController', 'deleteLike']); //좋아요 삭제 10
@@ -51,6 +61,9 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('PUT', '/posts/{mainPostId}/likes', ['LikeController', 'updateLike']); //좋아요 수정 20
     $r->addRoute('POST', '/posts/{mainPostId}/reply/{replyId}/likes', ['LikeController', 'createReplyLike']); //댓글 좋아요 생성 20
     $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}/likes', ['LikeController', 'deleteReplyLike']); //댓글 좋아요 삭제 20
+//    $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}/likes', ['LikeController', 'updateReplyLike']); //댓글 좋아요 삭제 20
+//    $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}/likes', ['LikeController', 'getReplyLike']); //댓글 좋아요 삭제 20
+>>>>>>> c7138c2d152da878abee27b206a534204ffe5c9a
 
     //2순위
 //    $r->addRoute('POST', '/posts/{mainPostId}/share', ['PostController', 'sharePost']); //게시글 공유 60

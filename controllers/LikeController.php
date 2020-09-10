@@ -57,7 +57,7 @@ try {
             if(isDeletedPost($mainPostId))
             {
                 $res->isSuccess = FALSE;
-                $res->code = 201;
+                $res->code = 203;
                 $res->message = "삭제된 게시글 입니다.";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
@@ -102,7 +102,7 @@ try {
             if(isDeletedPost($mainPostId))
             {
                 $res->isSuccess = FALSE;
-                $res->code = 201;
+                $res->code = 203;
                 $res->message = "삭제된 게시글 입니다";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
@@ -127,11 +127,12 @@ try {
                 break;
             }
             $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+            $likeKind=$req->likeKind;
             $mainPostId=$vars['mainPostId'];
             if(isDeletedPost($mainPostId))
             {
                 $res->isSuccess = FALSE;
-                $res->code = 201;
+                $res->code = 202;
                 $res->message = "삭제된 게시글 입니다.";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
@@ -139,7 +140,7 @@ try {
             $mainReplyId=$vars['replyId'];
             if(isDeletedReplyLike($mainReplyId,$data->userId))
             {
-                recreateReplyLike($mainReplyId,$data->userId);
+                recreateReplyLike($mainReplyId,$data->userId,$likeKind);
                 $res->isSuccess = true;
                 $res->code = 100;
                 $res->message = "댓글 좋아요 생성 완료";
@@ -149,7 +150,7 @@ try {
             if(isDuplicatedReplyLike($mainReplyId,$data->userId))
             {
                 $res->isSuccess = false;
-                $res->code = 202;
+                $res->code = 203;
                 $res->message = "중복된 좋아요";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
@@ -157,13 +158,13 @@ try {
             if(isDeletedReply($mainReplyId))
             {
                 $res->isSuccess = FALSE;
-                $res->code = 201;
+                $res->code = 204;
                 $res->message = "삭제된 댓글 입니다.";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
 
-            createReplyLike($mainReplyId,$data->userId);
+            createReplyLike($mainReplyId,$data->userId,$likeKind);
 
             $res->isSuccess = true;
             $res->code = 100;
@@ -186,7 +187,7 @@ try {
             if(isDeletedPost($mainPostId))
             {
                 $res->isSuccess = FALSE;
-                $res->code = 201;
+                $res->code = 202;
                 $res->message = "삭제된 게시글 입니다.";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
@@ -203,7 +204,7 @@ try {
             if(isDeletedReplyLike($mainReplyId,$data->userId))
             {
                 $res->isSuccess = FALSE;
-                $res->code = 202;
+                $res->code = 203;
                 $res->message = "이미 좋아요가 삭제되었습니다";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
@@ -211,7 +212,7 @@ try {
             if(isDeletedReply($mainReplyId))
             {
                 $res->isSuccess = FALSE;
-                $res->code = 201;
+                $res->code = 205;
                 $res->message = "삭제된 댓글 입니다";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
@@ -248,7 +249,7 @@ try {
             if(isDeletedPost($mainPostId))
             {
                 $res->isSuccess = FALSE;
-                $res->code = 201;
+                $res->code = 202;
                 $res->message = "삭제된 게시글 입니다.";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
@@ -300,7 +301,7 @@ try {
 
             $res->isSuccess = true;
             $res->code = 100;
-            $res->message = "좋아요 수정 완료";
+            $res->message = "좋아요 조회 완료";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 

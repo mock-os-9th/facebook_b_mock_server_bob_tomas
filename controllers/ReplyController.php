@@ -40,7 +40,7 @@ try {
             if(isDeletedPost($mainPostId))
             {
                 $res->isSuccess = FALSE;
-                $res->code = 201;
+                $res->code = 203;
                 $res->message = "삭제된 게시글 입니다.";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
@@ -106,7 +106,7 @@ try {
             if(isDeletedPost($mainPostId))
             {
                 $res->isSuccess = FALSE;
-                $res->code = 201;
+                $res->code = 203;
                 $res->message = "삭제된 게시글 입니다.";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
@@ -114,7 +114,7 @@ try {
             if(!isset($mainReplyId))
             {
                 $res->isSuccess = false;
-                $res->code = 203;
+                $res->code = 204;
                 $res->message = "메인 댓글 인덱스가 존재하지 않습니다";
                 echo json_encode($res);
                 break;
@@ -176,11 +176,19 @@ try {
             $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
 
             $postId=$vars['mainPostId'];
+            if(isDeletedPost($postId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 203;
+                $res->message = "삭제된 게시글 입니다.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
             $replyId=$vars['replyId'];
             if(!isset($postId))
             {
                 $res->isSuccess = false;
-                $res->code = 203;
+                $res->code = 202;
                 $res->message = "메인 포스트 인덱스가 존재하지 않습니다";
                 echo json_encode($res);
                 break;
@@ -188,7 +196,7 @@ try {
             if(!isset($replyId))
             {
                 $res->isSuccess = false;
-                $res->code = 203;
+                $res->code = 205;
                 $res->message = "메인 댓글 인덱스가 존재하지 않습니다";
                 echo json_encode($res);
                 break;
@@ -224,7 +232,7 @@ try {
             if(isDeletedPost($postId))
             {
                 $res->isSuccess = FALSE;
-                $res->code = 201;
+                $res->code = 203;
                 $res->message = "삭제된 게시글 입니다.";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
@@ -234,7 +242,7 @@ try {
             if(!isset($postId))
             {
                 $res->isSuccess = false;
-                $res->code = 203;
+                $res->code = 202;
                 $res->message = "메인 포스트 인덱스가 존재하지 않습니다";
                 echo json_encode($res);
                 break;
@@ -242,7 +250,7 @@ try {
             if(!isset($replyId))
             {
                 $res->isSuccess = false;
-                $res->code = 203;
+                $res->code = 205;
                 $res->message = "메인 댓글 인덱스가 존재하지 않습니다";
                 echo json_encode($res);
                 break;
