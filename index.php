@@ -9,6 +9,8 @@ require './vendor/autoload.php';
 require './pdos/profilePdo.php';
 require './pdos/friendPdo.php';
 require './pdos/feedPdo.php';
+require './pdos/fcmPdo.php';
+
 
 use \Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
@@ -87,6 +89,8 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/', ['FeedController', 'mainFeed']);   //피드 조회
     $r->addRoute('GET', '/my-feed', ['FeedController', 'myFeed']);   //피드 조회
 
+    $r->addRoute('POST', '/post-device', ['FcmController', 'postDevice']);   //fcm 기기토큰 등록
+    $r->addRoute('POST', '/device-disabled', ['FcmController', 'deviceDisabled']);   //fcm 기기토큰 비활성
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
 //    // {id} must be a number (\d+)
@@ -178,6 +182,11 @@ switch ($routeInfo[0]) {
                 $handler = $routeInfo[1][1];
                 $vars = $routeInfo[2];
                 require './controllers/FriendController.php';
+                break;
+            case 'FcmController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/FcmController.php';
                 break;
             /*case 'EventController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
