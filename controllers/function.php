@@ -29,46 +29,6 @@ function isValidHeader($jwt, $key)
     }
 }
 
-function sendFcm($fcmToken, $data, $key, $deviceType)
-{
-    $url = 'https://fcm.googleapis.com/fcm/send';
-
-    $headers = array(
-        'Authorization: key=' . $key,
-        'Content-Type: application/json'
-    );
-
-    $fields['data'] = $data;
-
-    if ($deviceType == 'IOS') {
-        $notification['title'] = $data['title'];
-        $notification['body'] = $data['body'];
-        $notification['sound'] = 'default';
-        $fields['notification'] = $notification;
-    }
-
-    $fields['to'] = $fcmToken;
-    $fields['content_available'] = true;
-    $fields['priority'] = "high";
-
-    $fields = json_encode($fields, JSON_NUMERIC_CHECK);
-
-//    echo $fields;
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-
-    $result = curl_exec($ch);
-    if ($result === FALSE) {
-        //die('FCM Send Error: ' . curl_error($ch));
-    }
-    curl_close($ch);
-    return $result;
-}
 
 function getTodayByTimeStamp()
 {
