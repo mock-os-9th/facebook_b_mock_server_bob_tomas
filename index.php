@@ -70,7 +70,8 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('PATCH', '/hobby-modify', ['ProfileController', 'modifyHobby']);
 
     $r->addRoute('GET', '/all-friend/{userIdx}', ['ProfileController', 'getAllFriends']);
-
+    $r->addRoute('GET', '/searched-friend/{userIdx}', ['ProfileController', 'getSearchedFriend']);
+    $r->addRoute('GET', '/my-detail-page', ['ProfileController', 'getMyDetailPage']);
 
     $r->addRoute('POST', '/request-friend/{reqFriIdx}', ['FriendController', 'requestFriend']);  //친구요청
     $r->addRoute('GET', '/request-friend-page', ['FriendController', 'requestFriendPage']);    //친구요청확인 페이지

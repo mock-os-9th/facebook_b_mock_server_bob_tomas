@@ -377,11 +377,6 @@ function deleteUser($userId,$jwt,$sign)
     $st = $pdo->prepare($query);
     $st->execute([$userId,$userId]);
     $st=null;
-    $query = "delete from groups1 where userId = ?;";
-    $st = $pdo->prepare($query);
-    $st->execute([$userId]);
-    $st=null;
-    $st=null;
     $query = "delete from JWT where jwt = ?;";
     $st = $pdo->prepare($query);
     $st->execute([$jwt]);
