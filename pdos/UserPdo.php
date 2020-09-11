@@ -385,9 +385,9 @@ function deleteUser($userId,$jwt,$sign)
     $st = $pdo->prepare($query);
     $st->execute([$userId]);
     $st=null;
-    $query = "delete from loginTable where userId = ?;";
+    $query = "delete from loginTable where sign = ?;";
     $st = $pdo->prepare($query);
-    $st->execute([$userId]);
+    $st->execute([$sign]);
     $st=null;
     $query = "delete from pages where userId = ?;";
     $st = $pdo->prepare($query);
