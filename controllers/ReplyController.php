@@ -24,6 +24,96 @@ try {
          * API Name : 테스트 API
          * 마지막 수정 날짜 : 19.04.29
          */
+        case "getReply":
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {
+                $res->isSuccess = FALSE;
+                $res->code = 201;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                break;
+            }
+            $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
+
+            $mainPostId=$vars['mainPostId'];
+            $offset=$_GET['offset']*10;
+
+            $writer=getWriter($mainPostId);
+            $isOpen=getIsOpen($mainPostId);
+            if(isDeletedPost($mainPostId))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 299;
+                $res->message = "삭제된 게시글 입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            if(isDeletedUser($writer))
+            {
+                $res->isSuccess = FALSE;
+                $res->code = 299;
+                $res->message = "삭제된 게시글 입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            if($isOpen==2)
+            {
+                $isOpenChecked=CheckIsOpen2($writer,$data->userId);
+                if($isOpenChecked[0]==0 and $isOpenChecked[1]==0)
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+            if($isOpen==3)
+            {
+
+                if(CheckIsOpen3($mainPostId,$data->userId))
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+            if($isOpen==4)
+            {
+
+                if(!CheckIsOpen4($mainPostId,$data->userId))
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+            if($isOpen==5)
+            {
+                if(!isPostWriter($mainPostId,$data->userId))  //
+                {
+                    $res->isSuccess = FALSE;
+                    $res->code = 210;
+                    $res->message = "조회 권한이 없습니다";
+                    echo json_encode($res);
+                    break;
+                }
+            }
+
+            $res->reply = getReply($mainPostId,$offset); //댓글 조회(10개씩 페이징), 대댓글은 (3개 페이징 한번 후 나머지는 전체 출력), 메인 댓글 당 대댓글 수
+            $res->rereply = getReReply($mainPostId); //대댓글 조회
+            $res->isSuccess = true;
+            $res->code = 100;
+            $res->message = "댓글 조회 완료";
+            echo json_encode($res);
+            addErrorLogs($errorLogs, $res, $req);
+            break;
+
         case "createReply":
             $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
             if (!isValidHeader($jwt, JWT_SECRET_KEY) || !isJwtSaved($jwt,1)) {

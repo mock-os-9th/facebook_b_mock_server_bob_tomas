@@ -400,7 +400,6 @@ try {
             }
             $data=getDataByJWToken($jwt,JWT_SECRET_KEY);
             $mainPostId=$vars["mainPostId"];
-            $offset=$_GET['offset']*10;
             if(isDeletedPost($mainPostId))
             {
                 $res->isSuccess = FALSE;
@@ -487,8 +486,6 @@ try {
             $res->shareNum=getShareNum($mainPostId); //공유 개수
             $res->likeNum=getLikeNum($mainPostId); //좋아요 개수
             $res->replyNum=getReplyNum($mainPostId); //댓글 수
-            $res->reply = getReply($mainPostId,$offset); //댓글 조회(10개씩 페이징), 대댓글은 (3개 페이징 한번 후 나머지는 전체 출력), 메인 댓글 당 대댓글 수
-            $res->rereply = getReReply($mainPostId); //대댓글 조회
             $res->isSuccess = true;
             $res->code = 100;
             $res->message = "게시물 조회 성공";

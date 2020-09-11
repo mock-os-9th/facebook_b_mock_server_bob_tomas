@@ -778,13 +778,13 @@ and reply.status=1) replyCount,
        if(replyFiles.imageId!=-1,(select image from photos where replyFiles.imageId=photos.id),null) image,
        if(replyFiles.videoId!=-1,(select video from videos where replyFiles.videoId=videos.id),null) video,
     (case
-               when timestampdiff(DAY, reply.getAt, now()) < -7
+               when timestampdiff(DAY, reply.getAt, now()) > 7
                    then time_format(reply.getAt, '%Y년 %m월 %d일')
-               when timestampdiff(DAY, reply.getAt, now()) <= -1 and timestampdiff(DAY, now(), reply.getAt) >= -7
+               when timestampdiff(DAY, reply.getAt, now()) >= 1 and timestampdiff(DAY, now(), reply.getAt) <= 7
                    then concat(timestampdiff(DAY, reply.getAt, now()), '일 전')
-               when timestampdiff(HOUR, reply.getAt, now()) >= -24 and timestampdiff(HOUR, now(), reply.getAt) <= -1
+               when timestampdiff(HOUR, reply.getAt, now()) >= 24 and timestampdiff(HOUR, now(), reply.getAt) <= 1
                    then concat(timestampdiff(HOUR, reply.getAt, now()), '시간 전')
-               when timestampdiff(MINUTE, reply.getAt, now()) >= -60 and timestampdiff(MINUTE, now(), reply.getAt) <= -1
+               when timestampdiff(MINUTE, reply.getAt, now()) <= 60 and timestampdiff(MINUTE, now(), reply.getAt) >= 1
                    then concat(timestampdiff(MINUTE, reply.getAt, now()), '분 전')
                else '방금전' end) getAt
 
@@ -875,13 +875,13 @@ and reply.status=1) replyLikeCount,
        if(replyFiles.imageId!=-1,(select image from photos where replyFiles.imageId=photos.id),null) image,
        if(replyFiles.videoId!=-1,(select video from videos where replyFiles.videoId=videos.id),null) video,
     (case
-               when timestampdiff(DAY, reply.getAt, now()) < -7
+               when timestampdiff(DAY, reply.getAt, now()) > 7
                    then time_format(reply.getAt, '%Y년 %m월 %d일')
-               when timestampdiff(DAY, reply.getAt, now()) <= -1 and timestampdiff(DAY, now(), reply.getAt) >= -7
+               when timestampdiff(DAY, reply.getAt, now()) >= 1 and timestampdiff(DAY, now(), reply.getAt) <= 7
                    then concat(timestampdiff(DAY, reply.getAt, now()), '일 전')
-               when timestampdiff(HOUR, reply.getAt, now()) >= -24 and timestampdiff(HOUR, now(), reply.getAt) <= -1
+               when timestampdiff(HOUR, reply.getAt, now()) <= 24 and timestampdiff(HOUR, now(), reply.getAt) >= 1
                    then concat(timestampdiff(HOUR, reply.getAt, now()), '시간 전')
-               when timestampdiff(MINUTE, reply.getAt, now()) >= -60 and timestampdiff(MINUTE, now(), reply.getAt) <= -1
+               when timestampdiff(MINUTE, reply.getAt, now()) <= 60 and timestampdiff(MINUTE, now(), reply.getAt) >= 1
                    then concat(timestampdiff(MINUTE, reply.getAt, now()), '분 전')
                else '방금전' end) getAt
 
