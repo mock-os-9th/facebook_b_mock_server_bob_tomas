@@ -102,6 +102,8 @@ function sendFcm($fcmToken,$username, $data, $key)
     //echo json_encode($fields);
     $result = curl_exec($ch);
 
+    echo $result;
+
     echo curl_error($ch);
     if ($result === FALSE) {
         //die('FCM Send Error: ' . curl_error($ch));
