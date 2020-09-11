@@ -2,6 +2,7 @@
 
 use Firebase\JWT\JWT;
 use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 use Google\Auth\ApplicationDefaultCredentials;
 use GuzzleHttp\Client;

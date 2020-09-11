@@ -5,7 +5,11 @@ require './pdos/UserPdo.php';
 require './pdos/PostPdo.php';
 require './pdos/ReplyPdo.php';
 require './pdos/LikePdo.php';
+require './pdos/MailPdo.php';
 require './vendor/autoload.php';
+require './vendor/phpmailer/phpmailer/src/PHPMailer.php';
+require './vendor/phpmailer/phpmailer/src/SMTP.php';
+require './vendor/phpmailer/phpmailer/src/Exception.php';
 require './pdos/profilePdo.php';
 require './pdos/friendPdo.php';
 require './pdos/feedPdo.php';
@@ -30,7 +34,6 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/login', ['UserController', 'login']); //로그인
     $r->addRoute('DELETE', '/logout', ['UserController', 'logout']); //로그인 정보 삭제, 로그아웃(토큰 무력화)
     $r->addRoute('PUT', '/change-password', ['UserController', 'changePassword']); //비밀번호 변경
-//    $r->addRoute('GET', '/find-password', ['UserController', 'findPassword']); //비밀번호 찾기
     $r->addRoute('DELETE', '/user', ['UserController', 'deleteUser']); //유저 탈퇴
 
 
@@ -40,20 +43,11 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('DELETE', '/posts/{mainPostId}', ['PostController', 'deletePost']); //게시글 삭제
     $r->addRoute('GET', '/posts/{mainPostId}', ['PostController', 'getPost']); //게시글 조회
 
+    $r->addRoute('GET', '/posts/{mainPostId}/reply', ['ReplyController', 'getReply']); //댓글 조회 30
     $r->addRoute('POST', '/posts/{mainPostId}/reply', ['ReplyController', 'createReply']); //댓글 생성 30
     $r->addRoute('POST', '/posts/{mainPostId}/reply-child', ['ReplyController', 'createReReply']); //대댓글 생성 20
     $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'deleteReply']); //댓글 삭제 10
     $r->addRoute('PUT', '/posts/{mainPostId}/reply/{replyId}', ['ReplyController', 'updateReply']); //댓글 수정(텍스트만 가능) 20
-<<<<<<< HEAD
-//
-//    $r->addRoute('POST', '/posts/{mainPostId}/likes', ['LikeController', 'createLike']); //좋아요 생성 30
-//    $r->addRoute('DELETE', '/posts/{mainPostId}/likes', ['LikeController', 'deleteLike']); //좋아요 삭제 10
-//    $r->addRoute('GET', '/posts/{mainPostId}/likes', ['LikeController', 'getLikes']); //좋아요 조회 30
-//    $r->addRoute('PUT', '/posts/{mainPostId}/likes/{postLikeId}', ['LikeController', 'updateLike']); //좋아요 수정 20
-//    $r->addRoute('POST', '/reply/{replyId}/likes', ['LikeController', 'createReplyLike']); //댓글 좋아요 생성 20
-//    $r->addRoute('PUT', '/reply/{replyId}/likes/{replyLikeId}', ['LikeController', 'updateReplyLike']); //댓글 좋아요 수정 20
-//    $r->addRoute('DELETE', '/reply/{replyId}/likes', ['LikeController', 'deleteReplyLike']); //댓글 좋아요 삭제 20
-=======
 
     $r->addRoute('POST', '/posts/{mainPostId}/likes', ['LikeController', 'createLike']); //좋아요 생성 30
     $r->addRoute('DELETE', '/posts/{mainPostId}/likes', ['LikeController', 'deleteLike']); //좋아요 삭제 10
@@ -61,18 +55,9 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('PUT', '/posts/{mainPostId}/likes', ['LikeController', 'updateLike']); //좋아요 수정 20
     $r->addRoute('POST', '/posts/{mainPostId}/reply/{replyId}/likes', ['LikeController', 'createReplyLike']); //댓글 좋아요 생성 20
     $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}/likes', ['LikeController', 'deleteReplyLike']); //댓글 좋아요 삭제 20
-//    $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}/likes', ['LikeController', 'updateReplyLike']); //댓글 좋아요 삭제 20
-//    $r->addRoute('DELETE', '/posts/{mainPostId}/reply/{replyId}/likes', ['LikeController', 'getReplyLike']); //댓글 좋아요 삭제 20
->>>>>>> c7138c2d152da878abee27b206a534204ffe5c9a
 
-    //2순위
-//    $r->addRoute('POST', '/posts/{mainPostId}/share', ['PostController', 'sharePost']); //게시글 공유 60
-//    $r->addRoute('POST', '/posts/{mainPostId}/save', ['PostController', 'savePost']); //게시글 저장 30
-//    $r->addRoute('GET', '/saves', ['PostController', 'getSavedPost']); //저장한 게시물 조회 60
-//    $r->addRoute('GET', '/posts/{mainPostId}/is-open', ['PostController', 'getIsOpenPost']); //게시글 공개범위 조회 30
-
-//    $r->addRoute('POST', '/posts/{mainPostId}', ['PostController', 'updatePost']); //게시글 수정(공개 범위 : 함수 구현 필요)
-//    $r->addRoute('PUT', '/posts/{mainPostId}/isOpen', ['PostController', 'updatePostOpen']); //게시글 공개범위 수정(공개 범위 : 함수 구현 필요)
+    $r->addRoute('POST', '/mail', ['MailController', 'findPassword']); //비밀번호 변경 링크 메일 전송
+    $r->addRoute('POST', '/mail-schedule', ['MailController', 'createMailSchedule']); //메일 스케줄러 구현
 
     $r->addRoute('GET', '/jwt', ['MainController', 'validateJwt']);
     $r->addRoute('GET', '/jwt-data', ['MainController', 'data']);
@@ -186,6 +171,10 @@ switch ($routeInfo[0]) {
                 $vars = $routeInfo[2];
                 require './controllers/LikeController.php';
                 break;
+            case 'MailController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/MailController.php';
             case 'FeedController':
                 $handler = $routeInfo[1][1];
                 $vars = $routeInfo[2];
@@ -201,30 +190,6 @@ switch ($routeInfo[0]) {
                 $vars = $routeInfo[2];
                 require './controllers/FcmController.php';
                 break;
-            /*case 'EventController':
-                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-                require './controllers/EventController.php';
-                break;
-            case 'ProductController':
-                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-                require './controllers/ProductController.php';
-                break;
-            case 'SearchController':
-                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-                require './controllers/SearchController.php';
-                break;
-            case 'ReviewController':
-                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-                require './controllers/ReviewController.php';
-                break;
-            case 'ElementController':
-                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-                require './controllers/ElementController.php';
-                break;
-            case 'AskFAQController':
-                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-                require './controllers/AskFAQController.php';
-                break;*/
         }
 
         break;
