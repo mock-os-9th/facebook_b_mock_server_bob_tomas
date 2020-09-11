@@ -109,7 +109,7 @@ try {
             $res->rereply = getReReply($mainPostId); //대댓글 조회
             $res->isSuccess = true;
             $res->code = 100;
-            $res->message = "댓글 삭제 완료";
+            $res->message = "댓글 조회 완료";
             echo json_encode($res);
             addErrorLogs($errorLogs, $res, $req);
             break;
