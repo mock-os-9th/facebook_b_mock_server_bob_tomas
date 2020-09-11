@@ -356,10 +356,6 @@ function changeJWT($newJwt,$wasJwt,$macAddress)
 function deleteUser($userId,$jwt,$sign)
 {
     $pdo = pdoSqlConnect();
-    $query = "delete from loginTable where sign = ?;";
-    $st = $pdo->prepare($query);
-    $st->execute([$sign]);
-    $st=null;
     $query = "delete from checkIn where userId = ?;";
     $st = $pdo->prepare($query);
     $st->execute([$userId]);
@@ -381,10 +377,6 @@ function deleteUser($userId,$jwt,$sign)
     $st = $pdo->prepare($query);
     $st->execute([$jwt]);
     $st=null;
-    $query = "delete from pageLike where userId = ?;";
-    $st = $pdo->prepare($query);
-    $st->execute([$userId]);
-    $st=null;
     $query = "delete from loginTable where sign = ?;";
     $st = $pdo->prepare($query);
     $st->execute([$sign]);
@@ -398,10 +390,6 @@ function deleteUser($userId,$jwt,$sign)
     $st->execute([$userId]);
     $st=null;
     $query = "delete from postLike where userId = ?;";
-    $st = $pdo->prepare($query);
-    $st->execute([$userId]);
-    $st=null;
-    $query = "delete from postNameTag where userId = ?;";
     $st = $pdo->prepare($query);
     $st->execute([$userId]);
     $st=null;
@@ -430,10 +418,6 @@ function deleteUser($userId,$jwt,$sign)
     $st->execute([$userId]);
     $st=null;
     $query = "delete from replyLike where userId = ?;";
-    $st = $pdo->prepare($query);
-    $st->execute([$userId]);
-    $st=null;
-    $query = "delete from replyNameTag where userId = ?;";
     $st = $pdo->prepare($query);
     $st->execute([$userId]);
     $st=null;
