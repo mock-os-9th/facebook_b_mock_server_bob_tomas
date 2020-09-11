@@ -140,30 +140,53 @@ function requestFriendPage($userIdx){
     return $res;
 }
 
-function updateRequestStatus($status, $requestId){
+function updateRequestStatus($status, $requestId, $requestUserId, $userId){
     $pdo = pdoSqlConnect();
-    $query = "UPDATE friendsRequest t
+
+    try {
+        $pdo->beginTransaction();
+
+        $query = "UPDATE friendsRequest t
               SET t.status = ?
               WHERE t.id = ?;";
 
-    $st = $pdo->prepare($query);
-    $st->execute([$status, $requestId]);
+        $st = $pdo->prepare($query);
+        $st->execute([$status, $requestId]);
 
-    $st = null;
-    $pdo = null;
-}
-
-function setFriend($requestUserId, $userId){
-    $pdo = pdoSqlConnect();
-    $query = "INSERT INTO friends(user1Id, user2Id, status)
+        $query = "INSERT INTO friends(user1Id, user2Id, status)
               VALUES (?,?,1);";
 
-    $st = $pdo->prepare($query);
-    $st->execute([$requestUserId, $userId]);
+        $st = $pdo->prepare($query);
+        $st->execute([$requestUserId, $userId]);
+
+        $pdo->commit();
+
+    }catch (Exception $e){
+        $pdo->rollBack();
+        $res = (Object)Array();
+        echo $e->getMessage();
+        $res->isSuccess = FALSE;
+        $res->code = 250;
+        $res->message = "트랜잭션 실패 롤백.";
+        return $res;
+    }
 
     $st = null;
     $pdo = null;
 }
+//
+//function setFriend($requestUserId, $userId){
+//    $pdo = pdoSqlConnect();
+//
+//    $query = "INSERT INTO friends(user1Id, user2Id, status)
+//              VALUES (?,?,1);";
+//
+//    $st = $pdo->prepare($query);
+//    $st->execute([$requestUserId, $userId]);
+//
+//    $st = null;
+//    $pdo = null;
+//}
 
 
 function whoIsDeleter($deleter, $deleted){
@@ -306,4 +329,40 @@ function isValidUserid($id){
     $pdo = null;
 
     return $res[0]['exist'];
+}
+
+function isExistRequest($id){
+    $pdo = pdoSqlConnect();
+    $query = "select EXISTS(select *
+                            from friendsRequest
+                            where id = ?) exist";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$id]);
+
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0]['exist'];
+}
+
+function getReqStatus($id){
+    $pdo = pdoSqlConnect();
+    $query = "select status
+                            from friendsRequest
+                            where id = ?";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$id]);
+
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0]['status'];
 }

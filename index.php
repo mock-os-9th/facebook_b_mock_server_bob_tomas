@@ -11,6 +11,10 @@ require './vendor/phpmailer/phpmailer/src/PHPMailer.php';
 require './vendor/phpmailer/phpmailer/src/SMTP.php';
 require './vendor/phpmailer/phpmailer/src/Exception.php';
 require './pdos/profilePdo.php';
+require './pdos/friendPdo.php';
+require './pdos/feedPdo.php';
+require './pdos/fcmPdo.php';
+
 
 use \Monolog\Logger as Logger;
 use Monolog\Handler\StreamHandler;
@@ -19,12 +23,12 @@ date_default_timezone_set('Asia/Seoul');
 ini_set('default_charset', 'utf8mb4');
 
 //에러출력하게 하는 코드
-error_reporting(E_ALL); ini_set("display_errors", 1);
+//error_reporting(E_ALL); ini_set("display_errors", 1);
 
 //Main Server API
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
     /* ******************   Test   ****************** */
-    $r->addRoute('GET', '/', ['IndexController', 'index']);
+//    $r->addRoute('GET', '/', ['IndexController', 'index']);
 
     $r->addRoute('POST', '/user', ['UserController', 'createUser']); //회원가입
     $r->addRoute('POST', '/login', ['UserController', 'login']); //로그인
@@ -67,9 +71,24 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     $r->addRoute('GET', '/all-friend/{userIdx}', ['ProfileController', 'getAllFriends']);
 
+
+    $r->addRoute('POST', '/request-friend/{reqFriIdx}', ['FriendController', 'requestFriend']);  //친구요청
+    $r->addRoute('GET', '/request-friend-page', ['FriendController', 'requestFriendPage']);    //친구요청확인 페이지
+
+    $r->addRoute('POST', '/response-friend-ok', ['FriendController', 'responseFriendOk']);   //친구 수락
+    $r->addRoute('POST', '/response-friend-no', ['FriendController', 'responseFriendNo']);   //친구 거절(삭제)
+    $r->addRoute('POST', '/request-friend-cancel', ['FriendController', 'requestFriendCancel']);   //친구 요청 취소
+    $r->addRoute('POST', '/friend-cancel/{reqFriIdx}', ['FriendController', 'cancelFriend']);   //친구 취소(삭제)
+
     $r->addRoute('POST', '/insert-profile-image', ['ProfileController', 'insertProfileImage']);
     $r->addRoute('POST', '/insert-cover-image', ['ProfileController', 'insertCoverImage']);
 
+
+    $r->addRoute('GET', '/', ['FeedController', 'mainFeed']);   //피드 조회
+    $r->addRoute('GET', '/my-feed', ['FeedController', 'myFeed']);   //피드 조회
+
+    $r->addRoute('POST', '/post-device', ['FcmController', 'postDevice']);   //fcm 기기토큰 등록
+    $r->addRoute('POST', '/device-disabled', ['FcmController', 'deviceDisabled']);   //fcm 기기토큰 비활성
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
 //    // {id} must be a number (\d+)
@@ -152,11 +171,24 @@ switch ($routeInfo[0]) {
                 $vars = $routeInfo[2];
                 require './controllers/LikeController.php';
                 break;
-
             case 'MailController':
                 $handler = $routeInfo[1][1];
                 $vars = $routeInfo[2];
                 require './controllers/MailController.php';
+            case 'FeedController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/FeedController.php';
+                break;
+            case 'FriendController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/FriendController.php';
+                break;
+            case 'FcmController':
+                $handler = $routeInfo[1][1];
+                $vars = $routeInfo[2];
+                require './controllers/FcmController.php';
                 break;
         }
 
